@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -59,6 +61,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=25)
      */
     private $role;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Delivery::class, mappedBy="admin")
+     */
+    private $deliveriesCreatedByAdmin;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Delivery::class, mappedBy="driver")
+     */
+    private $deliveriesCarriedByDriver;
+
+    public function __construct()
+    {
+        $this->deliveriesCreatedByAdmin = new ArrayCollection();
+        $this->deliveriesCarriedByDriver = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -208,4 +227,65 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Delivery>
+     */
+    public function getDeliveriesCreatedByAdmin(): Collection
+    {
+        return $this->deliveriesCreatedByAdmin;
+    }
+
+    public function addDeliveriesCreatedByAdmin(Delivery $deliveriesCreatedByAdmin): self
+    {
+        if (!$this->deliveriesCreatedByAdmin->contains($deliveriesCreatedByAdmin)) {
+            $this->deliveriesCreatedByAdmin[] = $deliveriesCreatedByAdmin;
+            $deliveriesCreatedByAdmin->setAdmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeliveriesCreatedByAdmin(Delivery $deliveriesCreatedByAdmin): self
+    {
+        if ($this->deliveriesCreatedByAdmin->removeElement($deliveriesCreatedByAdmin)) {
+            // set the owning side to null (unless already changed)
+            if ($deliveriesCreatedByAdmin->getAdmin() === $this) {
+                $deliveriesCreatedByAdmin->setAdmin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Delivery>
+     */
+    public function getDeliveriesCarriedByDriver(): Collection
+    {
+        return $this->deliveriesCarriedByDriver;
+    }
+
+    public function addDeliveriesCarriedByDriver(Delivery $deliveriesCarriedByDriver): self
+    {
+        if (!$this->deliveriesCarriedByDriver->contains($deliveriesCarriedByDriver)) {
+            $this->deliveriesCarriedByDriver[] = $deliveriesCarriedByDriver;
+            $deliveriesCarriedByDriver->setDriver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeliveriesCarriedByDriver(Delivery $deliveriesCarriedByDriver): self
+    {
+        if ($this->deliveriesCarriedByDriver->removeElement($deliveriesCarriedByDriver)) {
+            // set the owning side to null (unless already changed)
+            if ($deliveriesCarriedByDriver->getDriver() === $this) {
+                $deliveriesCarriedByDriver->setDriver(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

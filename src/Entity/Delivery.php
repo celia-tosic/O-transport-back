@@ -47,6 +47,25 @@ class Delivery
      */
     private $updated_at;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="deliveries")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $customer;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCreatedByAdmin")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $admin;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $driver;
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +139,42 @@ class Delivery
     public function setUpdatedAt(?\DateTimeInterface $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getAdmin(): ?User
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(?User $admin): self
+    {
+        $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getDriver(): ?User
+    {
+        return $this->driver;
+    }
+
+    public function setDriver(?User $driver): self
+    {
+        $this->driver = $driver;
 
         return $this;
     }
