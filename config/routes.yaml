@@ -1,0 +1,8 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+# La route qui va permettre à LexikJWT d'intercepter la requête
+# pour pouvoir se connecter
+api_login_check:
+    path: /api/login_check
