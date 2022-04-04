@@ -53,14 +53,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $picture;
 
     /**
-     * @ORM\Column(type="smallint")
+     * @ORM\Column(type="smallint", nullable=true)
      */
     private $status;
-
-    /**
-     * @ORM\Column(type="string", length=25)
-     */
-    private $role;
 
     /**
      * @ORM\OneToMany(targetEntity=Delivery::class, mappedBy="admin")
@@ -212,18 +207,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setStatus(int $status): self
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    public function getRole(): ?string
-    {
-        return $this->role;
-    }
-
-    public function setRole(string $role): self
-    {
-        $this->role = $role;
 
         return $this;
     }
