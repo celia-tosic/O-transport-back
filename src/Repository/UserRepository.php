@@ -25,6 +25,23 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
+     * get all the drivers
+     */
+    public function findAllDrivers()
+    {
+        $entityManager = $this->getEntityManager();
+
+        $query = $entityManager->createQuery(
+            'SELECT u
+            FROM App\Entity\User u
+            WHERE u.roles LIKE :role'
+        )->setParameter('role', '%ROLE_DRIVER%');
+
+        // returns an array of Movie objects
+        return $query->getResult();
+    }
+
+    /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
