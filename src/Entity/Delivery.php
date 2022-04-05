@@ -69,7 +69,7 @@ class Delivery
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
-     * @ORM\JoinColumn(nuldeliveries_pending_list     
+     * @ORM\JoinColumn(nullable=false)
      */
     private $driver;
     
