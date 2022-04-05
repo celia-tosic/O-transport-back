@@ -67,9 +67,9 @@ class DeliveryRepository extends ServiceEntityRepository
 
         $query = $entityManager->createQuery(
             'SELECT d 
-            FROM delivery d 
-            WHERE d.driver = 1
-            '
+            FROM App\Entity\Delivery d 
+            WHERE d.driver = 1'
+            
         );
 
         return $query->getResult(); 

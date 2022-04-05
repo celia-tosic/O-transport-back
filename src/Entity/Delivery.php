@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\DeliveryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=DeliveryRepository::class)
@@ -24,27 +25,13 @@ class Delivery
 
     /**
      * @ORM\Column(type="string", length=255)
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
      * @Groups({"api_deliveries_list","api_driver_deliveries"})
->>>>>>> Stashed changes
-=======
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})
->>>>>>> Stashed changes
-     */
+    */
     private $merchandise;
 
     /**
      * @ORM\Column(type="float")
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})     
->>>>>>> Stashed changes
-=======
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})     
->>>>>>> Stashed changes
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})      
      */
     private $volume;
 
