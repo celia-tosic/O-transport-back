@@ -6,6 +6,8 @@ use App\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
@@ -21,13 +23,22 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("api_deliveries_list") 
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("api_deliveries_list") 
      */
     private $address;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_deliveries_list")
+     * 
+     */
+    private $phoneNumber;
 
     /**
      * @ORM\OneToMany(targetEntity=Delivery::class, mappedBy="customer")
@@ -94,6 +105,26 @@ class Customer
                 $delivery->setCustomer(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of phoneNumber
+     */ 
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * Set the value of phoneNumber
+     *
+     * @return  self
+     */ 
+    public function setPhoneNumber($phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }
