@@ -69,7 +69,7 @@ class Delivery
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $driver;
     
