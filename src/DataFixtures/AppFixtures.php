@@ -43,6 +43,7 @@ class AppFixtures extends Fixture
             $customer = new Customer();
             $customer->setName($currentCustomer['name']);
             $customer->setAddress($currentCustomer['address']);
+            $customer->setPhoneNumber($currentCustomer[$faker->mobileNumber()]);
             $customersObjects[] = $customer;
             
             $manager->persist($customer);
@@ -93,6 +94,7 @@ class AppFixtures extends Fixture
             $user->setPassword($currentUser['password']); 
             $user->setFirstname($currentUser['firstname']); 
             $user->setLastname($currentUser['lastname']); 
+            $user->setPhoneNumber($currentUser[$faker->mobileNumber()]);
             if ($currentUser['status'] !== null ){
                 $user->setStatus($currentUser['status']);  
             } 
