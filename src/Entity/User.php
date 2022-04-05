@@ -22,6 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups("api_drivers_list")
      * @Groups("api_drivers_details")
      * @Groups("api_drivers_delete")
+     * @Groups("api_deliveries_details")
      */
     private $id;
 
@@ -52,6 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups("api_drivers_list")
      * @Groups("api_drivers_details")
      * @Groups("api_drivers_delete")
+     * @Groups("api_deliveries_details")
      */
     private $firstname;
 
@@ -60,6 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups("api_drivers_list")
      * @Groups("api_drivers_details")
      * @Groups("api_drivers_delete")
+     * @Groups("api_deliveries_details")
      */
     private $lastname;
 
@@ -74,6 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups("api_drivers_details")
      * @Groups("api_drivers_delete")
+     * @Groups("api_deliveries_details")
      */
     private $phoneNumber;
 
