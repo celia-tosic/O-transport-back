@@ -77,6 +77,9 @@ class DeliveryRepository extends ServiceEntityRepository
 
 
     /**
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
      * @throws ORMException
      * @throws OptimisticLockException

@@ -25,6 +25,10 @@ class Delivery
     /**
      * @ORM\Column(type="string", length=255)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})
+>>>>>>> Stashed changes
 =======
      * @Groups({"api_deliveries_list","api_driver_deliveries"})
 >>>>>>> Stashed changes
@@ -34,6 +38,10 @@ class Delivery
     /**
      * @ORM\Column(type="float")
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})     
+>>>>>>> Stashed changes
 =======
      * @Groups({"api_deliveries_list","api_driver_deliveries"})     
 >>>>>>> Stashed changes
