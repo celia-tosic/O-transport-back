@@ -30,10 +30,28 @@ class DeliveryRepository extends ServiceEntityRepository
         $entityManager = $this->getEntityManager(); 
 
         $query = $entityManager->createQuery(
-            'SELECT d, c 
+            'SELECT d, c
             FROM App\Entity\Delivery d
-            INNER JOIN App\Entity\Customer c
+            INNER JOIN d.customer c
             WHERE d.status = 1'
+        );
+
+        return $query->getResult(); 
+    }
+
+    /**
+     * return all deliveries pending
+     *
+     */
+    public function findCompletedDeliveries() {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d, c
+            FROM App\Entity\Delivery d
+            INNER JOIN d.customer c
+            WHERE d.status = 2'
         );
 
         return $query->getResult(); 
