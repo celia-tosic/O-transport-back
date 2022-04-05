@@ -23,13 +23,13 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("api_deliveries_pending_list") 
+     * @Groups("api_deliveries_list") 
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("api_deliveries_pending_list") 
+     * @Groups("api_deliveries_list") 
      */
     private $address;
 
