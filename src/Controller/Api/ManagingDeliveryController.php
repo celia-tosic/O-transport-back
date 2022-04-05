@@ -24,7 +24,7 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
-        /**
+    /**
      * @Route("/completed", name="completed_list")
      */
     public function completedList(DeliveryRepository $deliveryRepository): Response
