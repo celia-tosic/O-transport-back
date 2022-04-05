@@ -30,10 +30,11 @@ class DeliveryRepository extends ServiceEntityRepository
         $entityManager = $this->getEntityManager(); 
 
         $query = $entityManager->createQuery(
-            'SELECT d 
+            'SELECT d, c 
             FROM App\Entity\Delivery d
-            WHERE d.status = :status'
-        )->setParameter('status', 1);
+            INNER JOIN App\Entity\Customer c
+            WHERE d.status = 1'
+        );
 
         return $query->getResult(); 
     }

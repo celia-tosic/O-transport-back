@@ -39,7 +39,7 @@ class Delivery
 
     /**
      * @ORM\Column(type="string", length=510, nullable=true)
-     * @Groups("api_deliveries_pending_list")     
+     * @Groups("api_deliveries_pending_list")
      */
     private $comment;
 
@@ -56,7 +56,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="deliveries")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups("api_drivers_list")
+     * @Groups("api_deliveries_pending_list") 
      */
     private $customer;
 
