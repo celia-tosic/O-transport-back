@@ -24,11 +24,19 @@ class Delivery
 
     /**
      * @ORM\Column(type="string", length=255)
+<<<<<<< Updated upstream
+=======
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})
+>>>>>>> Stashed changes
      */
     private $merchandise;
 
     /**
      * @ORM\Column(type="float")
+<<<<<<< Updated upstream
+=======
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})     
+>>>>>>> Stashed changes
      */
     private $volume;
 

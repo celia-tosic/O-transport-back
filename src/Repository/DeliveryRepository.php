@@ -22,6 +22,62 @@ class DeliveryRepository extends ServiceEntityRepository
     }
 
     /**
+<<<<<<< Updated upstream
+=======
+     * return all deliveries pending
+     *
+     */
+    public function findPendingDeliveries() {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d, c
+            FROM App\Entity\Delivery d
+            INNER JOIN d.customer c
+            WHERE d.status = 1'
+        );
+
+        return $query->getResult(); 
+    }
+
+    /**
+     * return all deliveries pending
+     *
+     */
+    public function findCompletedDeliveries() {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d, c
+            FROM App\Entity\Delivery d
+            INNER JOIN d.customer c
+            WHERE d.status = 2'
+        );
+
+        return $query->getResult(); 
+    }
+    /**
+     * return all deliveries for one driver
+     */
+    public function findAllDeliveriesByDriver() {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d 
+            FROM delivery d 
+            WHERE d.driver = 1
+            '
+        );
+
+        return $query->getResult(); 
+    }
+
+
+    /**
+>>>>>>> Stashed changes
      * @throws ORMException
      * @throws OptimisticLockException
      */
