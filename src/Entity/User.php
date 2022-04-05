@@ -70,6 +70,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $picture;
 
+     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("api_drivers_details")
+     * @Groups("api_drivers_delete")
+     */
+    private $phoneNumber;
+
     /**
      * @ORM\Column(type="smallint", nullable=true)
      * @Groups("api_drivers_delete")
@@ -290,4 +297,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+
+    /**
+     * Get the value of phoneNumber
+     */ 
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * Set the value of phoneNumber
+     *
+     * @return  self
+     */ 
+    public function setPhoneNumber($phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
 }
