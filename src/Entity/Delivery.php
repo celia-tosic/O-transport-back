@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\DeliveryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass=DeliveryRepository::class)
@@ -19,21 +21,25 @@ class Delivery
 
     /**
      * @ORM\Column(type="smallint")
+     * @Groups("api_deliveries_pending_list")
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("api_deliveries_pending_list")
      */
     private $merchandise;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups("api_deliveries_pending_list")     
      */
     private $volume;
 
     /**
      * @ORM\Column(type="string", length=510, nullable=true)
+     * @Groups("api_deliveries_pending_list")
      */
     private $comment;
 
@@ -50,6 +56,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="deliveries")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups("api_deliveries_pending_list") 
      */
     private $customer;
 
@@ -62,7 +69,7 @@ class Delivery
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nuldeliveries_pending_list     
      */
     private $driver;
     
