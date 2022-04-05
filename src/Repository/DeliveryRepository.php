@@ -22,6 +22,22 @@ class DeliveryRepository extends ServiceEntityRepository
     }
 
     /**
+     * return all deliveries pending
+     *
+     */
+    public function findPendingDeliveries() {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d 
+            FROM App\Entity\Delivery d
+            WHERE d.status = :status'
+        )->setParameter('status', 1);
+
+        return $query->getResult(); 
+    }
+    /**
      * @throws ORMException
      * @throws OptimisticLockException
      */

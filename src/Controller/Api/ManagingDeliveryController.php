@@ -2,20 +2,24 @@
 
 namespace App\Controller\Api;
 
+use App\Repository\DeliveryRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/api/admin/deliveries", name="api_deliveries_")
+ */
 class ManagingDeliveryController extends AbstractController
 {
     /**
-     * @Route("/api/managing/delivery", name="app_api_managing_delivery")
+     * @Route("/pending", name="pending_list")
      */
-    public function index(): Response
+    public function pendingList(DeliveryRepository $deliveryRepository): Response
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/Api/ManagingDeliveryController.php',
-        ]);
+        // préparer les données
+        $pendingList = $deliveryRepository->findPendingDeliveries();
+        //La méthode json va "serializer" les données, c'est à dire les transformer en JSON.
+        return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => 'api_deliveries_pending_list']);
     }
 }
