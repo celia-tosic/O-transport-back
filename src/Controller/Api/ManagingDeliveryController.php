@@ -10,11 +10,13 @@ use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
+use LDAP\Result;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -125,18 +127,60 @@ class ManagingDeliveryController extends AbstractController
      * Get content and route to POST update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function update(int $id, DeliveryRepository $deliveryRepository, Request $request): Response
+    public function update(int $id, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine): Response
     {
+        // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);
 
+        // On récupère le contenu en JSON
         $jsonContent = $request->getContent();
-        
-        if ($jsonContent != "") {
-            dd("Je suis la route en POST");
-        } else {
-            dd('Je suis la route en GET');
-        }
 
-        return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+        // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
+
+
+        if ($jsonContent != "") {
+            // Ici nous traitons la méthode POST de la requête
+            // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
+            $decode = json_decode($jsonContent, true);
+            $deliveryToUpdate = $decode['delivery'];
+            $customerToUpdate = $decode['customer'];
+
+            $entityManager = $doctrine->getManager(); 
+
+            // dd($currentDelivery->getMerchandise());
+            // dd($deliveryToUpdate['merchandise']);
+
+            // On vérifie si chaque champs à évoluer, si oui on l'update
+            if ( $currentDelivery->getMerchandise() !== $deliveryToUpdate['merchandise']) {
+                $currentDelivery->setMerchandise($deliveryToUpdate['merchandise']);
+            }
+            if ( $currentDelivery->getVolume() !== $deliveryToUpdate['volume']) {
+                $currentDelivery->setVolume($deliveryToUpdate['volume']);
+            }
+            if ( $currentDelivery->getComment() !== $deliveryToUpdate['comment']) {
+                $currentDelivery->setComment($deliveryToUpdate['comment']);
+            }
+            //TODO il faut réfléchir à un moyen pour que l'UpdatedAt n'évolue que si il y a une modification au dessus
+            $currentDelivery->setUpdatedAt(new DateTime());
+
+            if ( $currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
+                $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
+            }
+            if ( $currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
+                $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
+            }
+            if ( $currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
+                $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
+            }
+
+            $entityManager->flush();
+
+            return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
+
+
+        } else {
+            // Ici nous traitons la méthode GET de la requête
+            return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+        }
     }
 }
