@@ -18,8 +18,8 @@ class FollowingDeliveryController extends AbstractController
      * @Route("/{id}/deliveries", name="showDelivery", methods="GET", requirements={"id"="\d+"})
      * @return Response
     */
-    public function showDeliveries(DeliveryRepository $deliveryRepository): Response {
-        $deliveryList = $deliveryRepository->findAllDeliveriesByDriver();
+    public function showDeliveries(int $id , DeliveryRepository $deliveryRepository): Response {
+        $deliveryList = $deliveryRepository->findAllDeliveriesByDriver($id);
     
         return $this->json($deliveryList, Response::HTTP_OK, [], ['groups'=>"api_driver_deliveries"]);
     }
