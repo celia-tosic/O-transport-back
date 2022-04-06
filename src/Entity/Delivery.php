@@ -20,6 +20,7 @@ class Delivery
 
     /**
      * @ORM\Column(type="smallint")
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})
      */
     private $status;
 
@@ -31,12 +32,13 @@ class Delivery
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})      
+     * @Groups({"api_deliveries_list","api_driver_deliveries"}))      
      */
     private $volume;
 
     /**
      * @ORM\Column(type="string", length=510, nullable=true)
+     * @Groups("api_deliveries_list")
      */
     private $comment;
 
@@ -53,6 +55,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="deliveries")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"api_deliveries_list","api_driver_deliveries"})
      */
     private $customer;
 
