@@ -49,6 +49,7 @@ class ManagingDeliveryController extends AbstractController
     }
 
     /**
+     * Post route to create a new delivery + customer
      * @Route("/create", name="create", methods={"POST"})
      */
     public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
@@ -77,8 +78,6 @@ class ManagingDeliveryController extends AbstractController
         //TODO il faut que l'admin corresponde à l'utilisateur créant la livraison (En session)
         $delivery->setAdmin($userRepository->find(3));
         $delivery->setStatus(0);
-        //TODO le customer est ajouté à la mano, mais celui-ci devra être dynamisé en fonction de sa création (ou non)
-
 
         // On fabrique les tests en testant de récupérer les données dans la table Customer
         $test = $customerRepository->findByName($customerArray['name']);
@@ -88,6 +87,7 @@ class ManagingDeliveryController extends AbstractController
         if (!$test) {
             // si il n'existe pas, on créé un nouveau customer
             $customer = new Customer();
+            // On utilise l'autre "clé" du decode pour créer notre customer
             $customer->setName($customerArray['name']);
             $customer->setAddress($customerArray['address']);
             $customer->setPhoneNumber($customerArray['phoneNumber']);
@@ -98,11 +98,12 @@ class ManagingDeliveryController extends AbstractController
                 // Si il existe on récupère le customer existant et on met à jour le numéro de téléphone
                 // $updatePhoneNumber = $customerArray['phoneNumber'];
                 $customer = $customerRepository->find($test[0]->getId());
-                
+
                 // $customer->setPhoneNumber($updatePhoneNumber);
             } else {
                 // Si elle ne correspond pas, on créé un nouveau Customer
                 $customer = new Customer();
+                // On utilise l'autre "clé" du decode pour créer notre customer
                 $customer->setName($customerArray['name']);
                 $customer->setAddress($customerArray['address']);
                 $customer->setPhoneNumber($customerArray['phoneNumber']);
@@ -114,14 +115,28 @@ class ManagingDeliveryController extends AbstractController
         $delivery->setCustomer($customer);
         $entityManager->persist($delivery);
 
-        // On utilise l'autre "clé" du decode pour créer notre customer
-        //TODO Il faut être capable de vérifier si le client existe déjà avant de le créer
-
-
-
         $entityManager->flush();
 
         // On retourne la réponse adaptée (201 + Location: URL de la ressource)
         return $this->json($delivery, Response::HTTP_CREATED, [], ['groups' => 'api_deliveries_details']);
+    }
+
+    /**
+     * Get content and route to POST update an existing delivery
+     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     */
+    public function update(int $id, DeliveryRepository $deliveryRepository, Request $request): Response
+    {
+        $currentDelivery = $deliveryRepository->find($id);
+
+        $jsonContent = $request->getContent();
+        
+        if ($jsonContent != "") {
+            dd("Je suis la route en POST");
+        } else {
+            dd('Je suis la route en GET');
+        }
+
+        return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
     }
 }
