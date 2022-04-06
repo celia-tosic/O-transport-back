@@ -3,8 +3,11 @@
 Pour utiliser le repo :
  - le cloner
  - ouvrir un terminal à la racine du projet
- - tapper dans la terminal la commande ``composer install``
- - configurer la base de données : dans Adminer, créer une base de données otransport puis créer un user nommé otransport avec mdp: otransport. 
+ - taper dans la terminal la commande ``composer install`` (= installe tous les composants)
+ - configurer la base de données : dans Adminer, créer une base de données otransport puis créer un user nommé otransport avec mot de passe: otransport
+ - dans le terminal, executer la commande ``bin/console migrations:migrate`` (=créé les tables dans la base de données)
+ - puis executer la commande ``bin/console doctrine:fixtures:load`` (= Ajoute des données dans la base de données)
+ - Ne pas oublier d'allumer le serveur: dans le terminal, executer la commande ``php -S 0.0.0.0:8080 -t public`` (attention, le port peut être différent si vous utilisez déjà le port 8080)
 **On ne touche pas au dossier vendor et au dossier var !**
 
 
@@ -22,6 +25,7 @@ Dépendances installées:
 - faker/php
 - nelmio/cors-bundle
 - lexik/jwt-authentication-bundle
+- serializer-pack
 
 
 ## Connexion de la base de données (Mise en prod)
