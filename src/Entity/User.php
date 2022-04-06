@@ -20,6 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $id;
 
@@ -44,13 +45,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"api_drivers_list","api_drivers_details", "api_drivers_delete"})
+     * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $lastname;
 
@@ -63,6 +66,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $phoneNumber;
 
