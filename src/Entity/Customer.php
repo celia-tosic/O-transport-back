@@ -18,6 +18,7 @@ class Customer
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("api_deliveries_details")
      */
     private $id;
 
