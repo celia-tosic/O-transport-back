@@ -46,7 +46,7 @@ class ManagingDriverController extends AbstractController
         // On prépare les données : on récupère les données de l'utilisateur en question
         $user = $userRepository->find($id);
 
-        //ON gère le cas si l'utilisateur n'existe pas
+        //On gère le cas si l'utilisateur n'existe pas
         if (is_null($user))
         {
             $data = 
@@ -84,17 +84,8 @@ class ManagingDriverController extends AbstractController
         $hashedPassword = $hasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
 
-        // $errors = $validator->validate($user);
+        //TODO Vérifier les données avec le Validator (Rappel : mettre les vérifications dans les entités avec @Assert)
 
-        // if (count($errors) > 0)
-        // {
-        //     $data = [
-        //         'error' => true,
-        //         'message' => (string) $errors,
-        //     ];
-
-        //     return $this->json($data, Response::HTTP_NOT_FOUND);
-        // }
 
         $entityManager = $doctrine->getManager();
         //doctrine prend en charge l'utilisateur créé...
@@ -144,19 +135,7 @@ class ManagingDriverController extends AbstractController
             $user->setPassword($hashedPassword);
         }
         
-        // //On demande au validator de vérifier si les données son correctes (on a mis les vérifications dans les entités avec assert avant)
-        // $errors = $validator->validate($user);
-
-        // if (count($errors) > 0)
-        // {
-        //     // TODO comment faire pour mutualiser / simplifier l'envoi d'erreur
-        //     $data = [
-        //         'error' => true,
-        //         'message' => (string) $errors,
-        //     ];
-
-        //     return $this->json($data, Response::HTTP_NOT_FOUND);
-        // }
+        //TODO Vérifier les données avec le Validator (Rappel : mettre les vérifications dans les entités avec @Assert)
 
         // On enregistre l'utilisateur avec les modifications en BDD
         $entityManager = $doctrine->getManager();
@@ -174,7 +153,7 @@ class ManagingDriverController extends AbstractController
      */
     public function delete(int $id, UserRepository $userRepository, ManagerRegistry $doctrine): Response
     {
-        // ON prépare les données
+        // On prépare les données
         $user = $userRepository->find($id);
 
         $entityManager =$doctrine->getManager();
