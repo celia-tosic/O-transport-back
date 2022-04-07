@@ -57,6 +57,25 @@ class DeliveryRepository extends ServiceEntityRepository
         return $query->getResult(); 
     }
     /**
+
+     * return all deliveries for one driver
+     */
+    public function findAllDeliveriesByDriver($id) {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d 
+            FROM App\Entity\Delivery d 
+            WHERE d.driver = :id'
+        )->setParameter('id', $id);
+            
+
+        return $query->getResult(); 
+    }
+
+
+    /**
      * @throws ORMException
      * @throws OptimisticLockException
      */

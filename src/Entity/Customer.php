@@ -24,12 +24,14 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"api_driver_deliveries"})
      * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"api_driver_deliveries"})
      * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $address;
