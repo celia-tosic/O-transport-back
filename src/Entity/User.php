@@ -47,6 +47,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
+     * @Groups("api_deliveries_list")
      */
     private $firstname;
 
@@ -54,6 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
+     * @Groups("api_deliveries_list")
      */
     private $lastname;
 
@@ -73,6 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="smallint", nullable=true)
      * @Groups({"api_drivers_list", "api_drivers_delete"})
+     * @Groups("api_deliveries_list")
      */
     private $status;
 

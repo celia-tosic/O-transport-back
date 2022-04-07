@@ -15,7 +15,7 @@ class Delivery
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("api_deliveries_details")
+     * @Groups({"api_deliveries_details", "api_delivery_deleted"})
      */
     private $id;
 
@@ -29,21 +29,21 @@ class Delivery
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups("api_driver_deliveries")
-     * @Groups({"api_deliveries_list", "api_deliveries_details"})
+     * @Groups({"api_deliveries_list", "api_deliveries_details", "api_delivery_deleted"})
      */
     private $merchandise;
 
     /**
      * @ORM\Column(type="float")
      * @Groups("api_driver_deliveries")      
-     * @Groups({"api_deliveries_list", "api_deliveries_details"})     
+     * @Groups({"api_deliveries_list", "api_deliveries_details","api_delivery_deleted"})     
      */
     private $volume;
 
     /**
      * @ORM\Column(type="string", length=510, nullable=true)
      * @Groups("api_deliveries_list")
-     * @Groups({"api_deliveries_list", "api_deliveries_details"})
+     * @Groups({"api_deliveries_list", "api_deliveries_details", "api_delivery_deleted"})
      */
     private $comment;
 
@@ -76,6 +76,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups("api_deliveries_list")
      */
     private $driver;
     

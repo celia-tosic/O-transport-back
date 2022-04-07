@@ -9,6 +9,7 @@ use App\Repository\CustomerRepository;
 use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use LDAP\Result;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -183,4 +184,24 @@ class ManagingDeliveryController extends AbstractController
             return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
         }
     }
+
+    /**
+     * function called to delete a delivery
+     *
+     * @Route("/{id}", name="delete", requirements={"id"="\d+"}, methods={"DELETE"})
+     * @return void
+     */
+    public function delete(int $id, DeliveryRepository $deliveryRepository, ManagerRegistry $doctrine) {
+
+        $deliveryToDelete = $deliveryRepository->find($id);
+        $entityManager = $doctrine->getManager();
+
+        $entityManager->remove($deliveryToDelete);
+        $entityManager->flush();
+        
+        return $this->json($deliveryToDelete, Response::HTTP_OK, [], ['groups' => "api_delivery_deleted"]);
+        //return $this->json("Work", Response::HTTP_OK, [])
+    }
+
+    
 }
