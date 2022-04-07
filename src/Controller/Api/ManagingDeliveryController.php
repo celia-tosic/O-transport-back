@@ -52,6 +52,29 @@ class ManagingDeliveryController extends AbstractController
     }
 
     /**
+     * Update the driver for a specific delivery
+     *
+     * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods="PUT")
+     */
+    public function affectDriver(int $id, UserRepository $userRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, SerializerInterface $serializer): Response
+    {
+        $deliveryToUpdate = $deliveryRepository->find($id);
+        $jsonContent = $request->getContent();
+        // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
+        $decodedDriverId = json_decode($jsonContent, true);
+        
+        $userToAffect = $userRepository->find($decodedDriverId);
+        $deliveryToUpdate->setDriver($userToAffect);
+        
+        // $deliveryToUpdate->setDriver()->getUser($userToAffect);
+        
+        $entityManager = $doctrine->getManager();
+        $entityManager->flush(); 
+
+        return $this->json($deliveryToUpdate, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+    }
+
+    /**
      * Post route to create a new delivery + customer
      * @Route("/create", name="create", methods={"POST"})
      */
@@ -85,7 +108,6 @@ class ManagingDeliveryController extends AbstractController
         // On fabrique les tests en testant de récupérer les données dans la table Customer
         $test = $customerRepository->findByName($customerArray['name']);
         $test2 = $customerRepository->findByAddress($customerArray['address']);
-        // On vérifie d'abord si le nom existe en BDD
 
         if (!$test) {
             // si il n'existe pas, on créé un nouveau customer
@@ -136,6 +158,7 @@ class ManagingDeliveryController extends AbstractController
         // On récupère le contenu en JSON
         $jsonContent = $request->getContent();
 
+
         // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
 
 
@@ -146,39 +169,37 @@ class ManagingDeliveryController extends AbstractController
             $deliveryToUpdate = $decode['delivery'];
             $customerToUpdate = $decode['customer'];
 
-            $entityManager = $doctrine->getManager(); 
+            $entityManager = $doctrine->getManager();
 
             // dd($currentDelivery->getMerchandise());
             // dd($deliveryToUpdate['merchandise']);
 
             // On vérifie si chaque champs à évoluer, si oui on l'update
-            if ( $currentDelivery->getMerchandise() !== $deliveryToUpdate['merchandise']) {
+            if ($currentDelivery->getMerchandise() !== $deliveryToUpdate['merchandise']) {
                 $currentDelivery->setMerchandise($deliveryToUpdate['merchandise']);
             }
-            if ( $currentDelivery->getVolume() !== $deliveryToUpdate['volume']) {
+            if ($currentDelivery->getVolume() !== $deliveryToUpdate['volume']) {
                 $currentDelivery->setVolume($deliveryToUpdate['volume']);
             }
-            if ( $currentDelivery->getComment() !== $deliveryToUpdate['comment']) {
+            if ($currentDelivery->getComment() !== $deliveryToUpdate['comment']) {
                 $currentDelivery->setComment($deliveryToUpdate['comment']);
             }
             //TODO il faut réfléchir à un moyen pour que l'UpdatedAt n'évolue que si il y a une modification au dessus
             $currentDelivery->setUpdatedAt(new DateTime());
 
-            if ( $currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
+            if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
                 $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
             }
-            if ( $currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
+            if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
                 $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
             }
-            if ( $currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
+            if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
                 $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
             }
 
             $entityManager->flush();
 
             return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
-
-
         } else {
             // Ici nous traitons la méthode GET de la requête
             return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
@@ -189,19 +210,28 @@ class ManagingDeliveryController extends AbstractController
      * function called to delete a delivery
      *
      * @Route("/{id}", name="delete", requirements={"id"="\d+"}, methods={"DELETE"})
-     * @return void
      */
-    public function delete(int $id, DeliveryRepository $deliveryRepository, ManagerRegistry $doctrine) {
+    public function delete(int $id, DeliveryRepository $deliveryRepository, ManagerRegistry $doctrine)
+    {
 
         $deliveryToDelete = $deliveryRepository->find($id);
         $entityManager = $doctrine->getManager();
 
+        //On gère le cas où la livraison n'existe pas 
+        if (is_null($deliveryToDelete)) {
+            $data =
+                [
+                    'error' => true,
+                    'message' => 'Driver not found',
+                ];
+            return $this->json($data, Response::HTTP_NOT_FOUND);
+        }
+
+
         $entityManager->remove($deliveryToDelete);
         $entityManager->flush();
-        
+
         return $this->json($deliveryToDelete, Response::HTTP_OK, [], ['groups' => "api_delivery_deleted"]);
         //return $this->json("Work", Response::HTTP_OK, [])
     }
-
-    
 }
