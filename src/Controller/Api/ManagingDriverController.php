@@ -84,7 +84,18 @@ class ManagingDriverController extends AbstractController
         $hashedPassword = $hasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
 
-        //TODO Vérifier les données avec le Validator (Rappel : mettre les vérifications dans les entités avec @Assert)
+        // Validation des données avec le validator (@Assert dans les entités)
+        $errors = $validator->validate($user);
+
+        if (count($errors) > 0)
+        {
+            $data = [
+                'error' => true,
+                'message' => (string) $errors,
+            ];
+
+            return $this->json($data, Response::HTTP_NOT_FOUND);
+        }
 
 
         $entityManager = $doctrine->getManager();
@@ -134,8 +145,19 @@ class ManagingDriverController extends AbstractController
             $hashedPassword = $hasher->hashPassword($user, $userObject->password);
             $user->setPassword($hashedPassword);
         }
-        
-        //TODO Vérifier les données avec le Validator (Rappel : mettre les vérifications dans les entités avec @Assert)
+
+          // Validation des données avec le validator (@Assert dans les entités)
+          $errors = $validator->validate($user);
+
+          if (count($errors) > 0)
+          {
+              $data = [
+                  'error' => true,
+                  'message' => (string) $errors,
+              ];
+  
+              return $this->json($data, Response::HTTP_NOT_FOUND);
+          }
 
         // On enregistre l'utilisateur avec les modifications en BDD
         $entityManager = $doctrine->getManager();
