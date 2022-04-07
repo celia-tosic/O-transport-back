@@ -13,6 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Response\JsonErrorResponse;
 
 /**
  * 
@@ -52,7 +53,7 @@ class ManagingDriverController extends AbstractController
             $data = 
             [
                 'error' => true,
-                'message' => 'Cet utilisateur est inconnu',
+                'message' => 'utilisateur inconnu',
             ];
             return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_drivers_details"]);
         }
@@ -88,13 +89,13 @@ class ManagingDriverController extends AbstractController
         $errors = $validator->validate($user);
 
         if (count($errors) > 0)
-        {
-            $data = [
-                'error' => true,
-                'message' => (string) $errors,
-            ];
-
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+        {            
+            $messages = [];
+            foreach ($errors as $violation) {
+                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+            }
+            return $this->json($messages, Response::HTTP_NOT_FOUND);
+           
         }
 
 
@@ -125,7 +126,7 @@ class ManagingDriverController extends AbstractController
         {
             $data = [
                 'error' => true,
-                'message' => 'Cet utilisateur est inconnu',
+                'message' => 'Utilisateur inconnu',
             ];
 
             return $this->json($data, Response::HTTP_NOT_FOUND);
@@ -151,12 +152,11 @@ class ManagingDriverController extends AbstractController
 
           if (count($errors) > 0)
           {
-              $data = [
-                  'error' => true,
-                  'message' => (string) $errors,
-              ];
-  
-              return $this->json($data, Response::HTTP_NOT_FOUND);
+            $messages = [];
+            foreach ($errors as $violation) {
+                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+            }
+            return $this->json($messages, Response::HTTP_NOT_FOUND);
           }
 
         // On enregistre l'utilisateur avec les modifications en BDD
@@ -186,7 +186,7 @@ class ManagingDriverController extends AbstractController
             $data = 
             [
                 'error' => true,
-                'message' => 'Driver not found',
+                'message' => 'Utilisateur inconnu',
             ];
             return $this->json($data, Response::HTTP_NOT_FOUND);
         }
