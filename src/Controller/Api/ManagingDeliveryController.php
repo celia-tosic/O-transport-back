@@ -4,20 +4,15 @@ namespace App\Controller\Api;
 
 use App\Entity\Customer;
 use App\Entity\Delivery;
-use App\Entity\User;
 use App\Repository\CustomerRepository;
 use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use LDAP\Result;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -56,18 +51,29 @@ class ManagingDeliveryController extends AbstractController
      *
      * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods="PUT")
      */
-    public function affectDriver(int $id, UserRepository $userRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, SerializerInterface $serializer): Response
+    public function affectDriver(int $id, UserRepository $userRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine): Response
     {
         $deliveryToUpdate = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
         // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
+        
+        // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
+        if (is_null($deliveryToUpdate)) {
+            $data = 
+            [
+                'error' => true, 
+                'message' => 'Cette livraison est inconnu',
+            ];
+            return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_deliveries_details"]);
+        }
+        
+        // On décode le json reçu pour ne prendre que l'ID envoyé 
         $decodedDriverId = json_decode($jsonContent, true);
-        
+        // On récupère l'objet User correspondant
         $userToAffect = $userRepository->find($decodedDriverId);
+        // On l'affect à la livraison
         $deliveryToUpdate->setDriver($userToAffect);
-        
-        // $deliveryToUpdate->setDriver()->getUser($userToAffect);
-        
+                
         $entityManager = $doctrine->getManager();
         $entityManager->flush(); 
 
@@ -78,7 +84,7 @@ class ManagingDeliveryController extends AbstractController
      * Post route to create a new delivery + customer
      * @Route("/create", name="create", methods={"POST"})
      */
-    public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // On récupère le contenu en JSON
         $jsonContent = $request->getContent();
