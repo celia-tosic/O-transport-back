@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
  */
@@ -17,20 +18,29 @@ class Customer
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("api_deliveries_details")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"api_driver_deliveries"})
+     * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"api_driver_deliveries"})
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $address;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
+     */
+    private $phoneNumber;
 
     /**
      * @ORM\OneToMany(targetEntity=Delivery::class, mappedBy="customer")
@@ -97,6 +107,26 @@ class Customer
                 $delivery->setCustomer(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of phoneNumber
+     */ 
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * Set the value of phoneNumber
+     *
+     * @return  self
+     */ 
+    public function setPhoneNumber($phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }

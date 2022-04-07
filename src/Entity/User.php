@@ -19,47 +19,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("api_drivers_list")
+     * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups("api_drivers_list")
+     * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups("api_drivers_list")
+     * @Groups("api_drivers_delete")
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Groups("api_drivers_delete")
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups("api_drivers_list")
+     * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups("api_drivers_list")
+     * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"api_drivers_details", "api_drivers_delete"})
      */
     private $picture;
 
+     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"api_drivers_details", "api_drivers_delete"})
+     * @Groups("api_deliveries_details")
+     */
+    private $phoneNumber;
+
     /**
      * @ORM\Column(type="smallint", nullable=true)
+     * @Groups({"api_drivers_list", "api_drivers_delete"})
      */
     private $status;
 
@@ -277,4 +290,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+
+    /**
+     * Get the value of phoneNumber
+     */ 
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * Set the value of phoneNumber
+     *
+     * @return  self
+     */ 
+    public function setPhoneNumber($phoneNumber)
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
 }

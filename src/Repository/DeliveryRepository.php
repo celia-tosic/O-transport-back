@@ -22,8 +22,6 @@ class DeliveryRepository extends ServiceEntityRepository
     }
 
     /**
-<<<<<<< Updated upstream
-=======
      * return all deliveries pending
      *
      */
@@ -59,6 +57,7 @@ class DeliveryRepository extends ServiceEntityRepository
         return $query->getResult(); 
     }
     /**
+
      * return all deliveries for one driver
      */
     public function findAllDeliveriesByDriver($id) {
@@ -77,10 +76,6 @@ class DeliveryRepository extends ServiceEntityRepository
 
 
     /**
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
      * @throws ORMException
      * @throws OptimisticLockException
      */

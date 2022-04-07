@@ -15,30 +15,35 @@ class Delivery
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("api_deliveries_details")
      */
     private $id;
 
     /**
      * @ORM\Column(type="smallint")
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})
+     * @Groups("api_driver_deliveries")
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})
-    */
+     * @Groups("api_driver_deliveries")
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
+     */
     private $merchandise;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"api_deliveries_list","api_driver_deliveries"}))      
+     * @Groups("api_driver_deliveries")      
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})     
      */
     private $volume;
 
     /**
      * @ORM\Column(type="string", length=510, nullable=true)
      * @Groups("api_deliveries_list")
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $comment;
 
@@ -55,7 +60,9 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="deliveries")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"api_deliveries_list","api_driver_deliveries"})
+     * @Groups("api_driver_deliveries")
+
+     * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
      */
     private $customer;
 
@@ -68,7 +75,7 @@ class Delivery
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $driver;
     
