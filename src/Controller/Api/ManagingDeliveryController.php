@@ -86,27 +86,24 @@ class ManagingDeliveryController extends AbstractController
      * Post route to create a new delivery + customer
      * @Route("/create", name="create", methods={"POST"})
      */
-    public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
-        // On récupère le contenu en JSON
-        $jsonContent = $request->getContent();
+        // On récupère le contenu de la requête en JSON et le décode en tableau
+        $data = $request->toArray();
 
-        // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
-        $decode = json_decode($jsonContent, true);
-        $deliveryArray = $decode['delivery'];
-        $customerArray = $decode['customer'];
+        //On isole nos deux "parties" (objets) du tableau : delivery et customer
+        $deliveryObject = $data["delivery"];
+        $customerObject = $data["customer"];
 
+        //On transforme nos 2 objets en json pour qu'ils puissent être ensuite déserializé. 
+        $deliveryString = $serializer->serialize($deliveryObject, 'json');
+        $customerString = $serializer->serialize($customerObject, 'json');
 
         // On prépare la manipulation des données
         $entityManager = $doctrine->getManager();
-        // méthode logique de déserialisation du contenu JSON
-        //$delivery = $serializer->deserialize($jsonContent, Delivery::class, 'json');
 
-        // a partir du decode, on créé une nouvel livraison
-        $delivery = new Delivery();
-        $delivery->setMerchandise($deliveryArray['merchandise']);
-        $delivery->setVolume($deliveryArray['volume']);
-        $delivery->setComment($deliveryArray['comment']);
+        //On deserialise et on créé un nouvel objet livraison
+        $delivery = $serializer->deserialize($deliveryString, Delivery::class, 'json');
         // On complète les infos qui ne sont pas dans le formulaire
         $delivery->setCreatedAt(new DateTime());
         $delivery->setUpdatedAt(null);
@@ -115,16 +112,13 @@ class ManagingDeliveryController extends AbstractController
         $delivery->setStatus(0);
 
         // On fabrique les tests en testant de récupérer les données dans la table Customer
-        $test = $customerRepository->findByName($customerArray['name']);
-        $test2 = $customerRepository->findByAddress($customerArray['address']);
+        $test = $customerRepository->findByName($customerObject['name']);
+        $test2 = $customerRepository->findByAddress($customerObject['address']);
+        // On vérifie d'abord si le nom existe en BDD
 
         if (!$test) {
             // si il n'existe pas, on créé un nouveau customer
-            $customer = new Customer();
-            // On utilise l'autre "clé" du decode pour créer notre customer
-            $customer->setName($customerArray['name']);
-            $customer->setAddress($customerArray['address']);
-            $customer->setPhoneNumber($customerArray['phoneNumber']);
+            $customer = $serializer->deserialize($customerString, Customer::class, 'json');
             $entityManager->persist($customer);
         } else {
             // si le nom existe, on verifie si l'adresse correspond
@@ -136,11 +130,7 @@ class ManagingDeliveryController extends AbstractController
                 // $customer->setPhoneNumber($updatePhoneNumber);
             } else {
                 // Si elle ne correspond pas, on créé un nouveau Customer
-                $customer = new Customer();
-                // On utilise l'autre "clé" du decode pour créer notre customer
-                $customer->setName($customerArray['name']);
-                $customer->setAddress($customerArray['address']);
-                $customer->setPhoneNumber($customerArray['phoneNumber']);
+                $customer = $serializer->deserialize($customerString, Customer::class, 'json');
                 $entityManager->persist($customer);
             }
         }
@@ -179,7 +169,7 @@ class ManagingDeliveryController extends AbstractController
      * Get content and route to POST update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function update(int $id, CustomerRepository $customerRepository,DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function update(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);
@@ -212,7 +202,7 @@ class ManagingDeliveryController extends AbstractController
             }
             if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
                 $existingCustomer = $customerRepository->findByName($customerToUpdate['name']);
-                if (empty($existingCustomer)){
+                if (empty($existingCustomer)) {
                     $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
                 } else {
                     //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
