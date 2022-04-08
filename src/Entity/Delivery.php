@@ -58,21 +58,13 @@ class Delivery
 
     /**
      * @ORM\Column(type="datetime")
-<<<<<<< HEAD
      * Groups("api_deliveries_list")
-=======
-     * @Groups("api_deliveries_details")
->>>>>>> 88735bfaf3c12577e239ac36270bffa56fbe6e4b
      */
     private $created_at;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-<<<<<<< HEAD
      * Groups("api_deliveries_list")
-=======
-     * @Groups("api_deliveries_details")
->>>>>>> 88735bfaf3c12577e239ac36270bffa56fbe6e4b
      */
     private $updated_at;
 
