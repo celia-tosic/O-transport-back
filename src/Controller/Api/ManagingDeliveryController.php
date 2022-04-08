@@ -169,7 +169,7 @@ class ManagingDeliveryController extends AbstractController
      * Get content and route to POST update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function update(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function readAndUpdate(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);

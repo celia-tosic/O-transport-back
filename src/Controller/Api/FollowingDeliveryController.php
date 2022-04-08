@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,15 +26,28 @@ class FollowingDeliveryController extends AbstractController
         return $this->json($deliveryList, Response::HTTP_OK, [], ['groups'=>"api_driver_deliveries"]);
     }
 
-    // /**
-    //  * Function for a driver to start a delivery
-    //  *
-    //  * @Route("/{id}/deliveries/start", name="start_delivery", methods="PATCH", requirements={"id"="\d+"})
-    //  */
-    // public function startDelivery(int $id,UserRepository $userRepository, DeliveryRepository $deliveryRepository): Response 
-    // {
-    //     $userToSwitch()
-    // }
+    /**
+     * Function for a driver to start a delivery
+     *
+     * @Route("/{idDriver}/deliveries/{idDelivery}/start", name="start_delivery", methods="GET", requirements={"id"="\d+", "idDelivery"="\d+"})
+     */
+    public function startDelivery(int $idDriver, int $idDelivery, UserRepository $userRepository, DeliveryRepository $deliveryRepository, ManagerRegistry $doctrine): Response 
+    {
+        
+        $userToSwitchStatus = $userRepository->find($idDriver);
+        $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
+        dd($userToSwitchStatus, $deliveryToSwitchStatus);
+        
+        $entityManager = $doctrine->getManager(); 
+        
+        $userToSwitchStatus->setStatus(1);
+        $deliveryToSwitchStatus->setStatus(1);
+        $entityManager->flush(); 
+        
+        return $this->json($userToSwitchStatus, Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
+
+
+    }
 
 
 
