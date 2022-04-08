@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
@@ -26,6 +27,7 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Groups({"api_driver_deliveries"})
      * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
+     * @Assert\NotBlank(message="Le nom du client ne peut pas être vide")
      */
     private $name;
 
@@ -33,12 +35,14 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Groups({"api_driver_deliveries"})
      * @Groups({"api_deliveries_list", "api_deliveries_details"})
+     * @Assert\NotBlank(message="L'adresse ne peut pas être vide")
      */
     private $address;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
+     * @Assert\NotBlank(message="Le numéro de téléphone ne peut être vide") 
      */
     private $phoneNumber;
 

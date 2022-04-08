@@ -9,10 +9,12 @@ use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -56,26 +58,26 @@ class ManagingDeliveryController extends AbstractController
         $deliveryToUpdate = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
         // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
-        
+
         // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
         if (is_null($deliveryToUpdate)) {
-            $data = 
-            [
-                'error' => true, 
-                'message' => 'Cette livraison est inconnu',
-            ];
+            $data =
+                [
+                    'error' => true,
+                    'message' => 'Cette livraison est inconnu',
+                ];
             return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_deliveries_details"]);
         }
-        
+
         // On décode le json reçu pour ne prendre que l'ID envoyé 
         $decodedDriverId = json_decode($jsonContent, true);
         // On récupère l'objet User correspondant
         $userToAffect = $userRepository->find($decodedDriverId);
         // On l'affect à la livraison
         $deliveryToUpdate->setDriver($userToAffect);
-                
+
         $entityManager = $doctrine->getManager();
-        $entityManager->flush(); 
+        $entityManager->flush();
 
         return $this->json($deliveryToUpdate, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
     }
@@ -93,6 +95,7 @@ class ManagingDeliveryController extends AbstractController
         $decode = json_decode($jsonContent, true);
         $deliveryArray = $decode['delivery'];
         $customerArray = $decode['customer'];
+
 
         // On prépare la manipulation des données
         $entityManager = $doctrine->getManager();
@@ -140,6 +143,22 @@ class ManagingDeliveryController extends AbstractController
                 $customer->setPhoneNumber($customerArray['phoneNumber']);
                 $entityManager->persist($customer);
             }
+        }
+
+        
+        // On vérifie la validité des données gràce au Validator Interface 
+        $messages = []; 
+        $errorsD = $validator->validate($delivery);
+        foreach($errorsD as $violation) {
+            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+        }
+        $errorsC = $validator->validate($customer);
+        foreach($errorsC as $violation) {
+            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+        }
+
+        if ($messages != []) {
+            return $this->json($messages, Response::HTTP_NOT_FOUND);
         }
 
         //on affecte le customer récupéré/créé à la livraison

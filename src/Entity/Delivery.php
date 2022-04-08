@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\DeliveryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=DeliveryRepository::class)
@@ -30,13 +31,20 @@ class Delivery
      * @ORM\Column(type="string", length=255)
      * @Groups("api_driver_deliveries")
      * @Groups({"api_deliveries_list", "api_deliveries_details", "api_delivery_deleted"})
+     * @Assert\NotBlank(message="Le nom de la marchandise ne peut être vide")
      */
     private $merchandise;
 
     /**
      * @ORM\Column(type="float")
      * @Groups("api_driver_deliveries")      
-     * @Groups({"api_deliveries_list", "api_deliveries_details","api_delivery_deleted"})     
+     * @Groups({"api_deliveries_list", "api_deliveries_details","api_delivery_deleted"})
+     * @Assert\NotBlank(message="Le nom de la marchandise ne peut être vide")
+     * @Assert\Range(
+     *      min = 0,
+     *      max = 20,
+     *      notInRangeMessage = "Le volume doit être compris entre 0 et 20 m³",
+     * )
      */
     private $volume;
 
@@ -61,7 +69,6 @@ class Delivery
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="deliveries")
      * @ORM\JoinColumn(nullable=false)
      * @Groups("api_driver_deliveries")
-
      * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
      */
     private $customer;
