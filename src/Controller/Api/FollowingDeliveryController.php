@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Repository\DeliveryRepository;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,4 +24,17 @@ class FollowingDeliveryController extends AbstractController
     
         return $this->json($deliveryList, Response::HTTP_OK, [], ['groups'=>"api_driver_deliveries"]);
     }
+
+    // /**
+    //  * Function for a driver to start a delivery
+    //  *
+    //  * @Route("/{id}/deliveries/start", name="start_delivery", methods="PATCH", requirements={"id"="\d+"})
+    //  */
+    // public function startDelivery(int $id,UserRepository $userRepository, DeliveryRepository $deliveryRepository): Response 
+    // {
+    //     $userToSwitch()
+    // }
+
+
+
 }

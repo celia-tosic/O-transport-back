@@ -17,6 +17,7 @@ class Delivery
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups({"api_deliveries_details", "api_delivery_deleted"})
+     * @Groups("api_deliveries_list")
      */
     private $id;
 

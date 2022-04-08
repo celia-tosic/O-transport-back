@@ -21,7 +21,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
-     * @Groups("api_deliveries_details")
+     * @Groups({"api_deliveries_details", "api_deliveries_list"})
      */
     private $id;
 
@@ -51,6 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
+     * @Groups("api_deliveries_list")
      * @Assert\NotBlank(message="Le prénom est obligatoire")
      * @Assert\Length(
      *      min = 2,
@@ -65,6 +66,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
+     * @Groups("api_deliveries_list")
+     * 
      * @Assert\NotBlank(message="Le nom est obligatoire")
      * @Assert\Length(
      *      min = 2,
