@@ -37,8 +37,7 @@ class FollowingDeliveryController extends AbstractController
         
         $userToSwitchStatus = $userRepository->find($idDriver);
         $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
-        dd($userToSwitchStatus, $deliveryToSwitchStatus);
-        
+
         $entityManager = $doctrine->getManager(); 
         
         $userToSwitchStatus->setStatus(1);
@@ -47,6 +46,26 @@ class FollowingDeliveryController extends AbstractController
         
         return $this->json($userToSwitchStatus, Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
 
+    }
+
+        /**
+     * Function for a driver to end a delivery
+     *
+     * @Route("/{idDriver}/deliveries/{idDelivery}/end", name="end_delivery", methods="GET", requirements={"id"="\d+", "idDelivery"="\d+"})
+     */
+    public function endDelivery(int $idDriver, int $idDelivery, UserRepository $userRepository, DeliveryRepository $deliveryRepository, ManagerRegistry $doctrine): Response 
+    {
+        
+        $userToSwitchStatus = $userRepository->find($idDriver);
+        $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
+
+        $entityManager = $doctrine->getManager(); 
+        
+        $userToSwitchStatus->setStatus(0);
+        $deliveryToSwitchStatus->setStatus(2);
+        $entityManager->flush(); 
+        
+        return $this->json('Livraison terminée', Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
 
     }
 
