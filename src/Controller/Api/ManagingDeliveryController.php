@@ -145,22 +145,22 @@ class ManagingDeliveryController extends AbstractController
             }
         }
 
-        
+
         // On vérifie la validité des données gràce au Validator Interface 
         // On fabrique un tableau d'erreur vide
-        $messages = []; 
+        $messages = [];
         // On vérifie si il y a des erreurs dans l'entité Delivery
         $errorsD = $validator->validate($delivery);
         // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
-        foreach($errorsD as $violation) {
+        foreach ($errorsD as $violation) {
             $messages[$violation->getPropertyPath()][] = $violation->getMessage();
         }
         // On fait pareil pour l'entité Customer
         $errorsC = $validator->validate($customer);
-        foreach($errorsC as $violation) {
+        foreach ($errorsC as $violation) {
             $messages[$violation->getPropertyPath()][] = $violation->getMessage();
         }
-        // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY
+        // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY (422)
         if ($messages != []) {
             return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -179,7 +179,7 @@ class ManagingDeliveryController extends AbstractController
      * Get content and route to POST update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function update(int $id, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine): Response
+    public function update(int $id, CustomerRepository $customerRepository,DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);
@@ -200,9 +200,6 @@ class ManagingDeliveryController extends AbstractController
 
             $entityManager = $doctrine->getManager();
 
-            // dd($currentDelivery->getMerchandise());
-            // dd($deliveryToUpdate['merchandise']);
-
             // On vérifie si chaque champs à évoluer, si oui on l'update
             if ($currentDelivery->getMerchandise() !== $deliveryToUpdate['merchandise']) {
                 $currentDelivery->setMerchandise($deliveryToUpdate['merchandise']);
@@ -213,17 +210,42 @@ class ManagingDeliveryController extends AbstractController
             if ($currentDelivery->getComment() !== $deliveryToUpdate['comment']) {
                 $currentDelivery->setComment($deliveryToUpdate['comment']);
             }
-            //TODO il faut réfléchir à un moyen pour que l'UpdatedAt n'évolue que si il y a une modification au dessus
-            $currentDelivery->setUpdatedAt(new DateTime());
-
             if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
-                $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
+                $existingCustomer = $customerRepository->findByName($customerToUpdate['name']);
+                if (empty($existingCustomer)){
+                    $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
+                } else {
+                    //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
+                    $currentDelivery->setCustomer($existingCustomer[0]);
+                    // $currentDelivery->setCustomer($customerRepository->findByName($existing));
+                }
             }
             if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
                 $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
             }
             if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
                 $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
+            }
+
+            // Ici on test la validité des inputs modifiés
+            // On fabrique un tableau d'erreur vide
+            $messages = [];
+            // On vérifie si il y a des erreurs dans l'entité Delivery
+            $updateErrorsOnDelivery = $validator->validate($currentDelivery);
+            $updateErrorsOnCustomer = $validator->validate($currentDelivery->getCustomer());
+            // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
+            foreach ($updateErrorsOnDelivery as $violation) {
+                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+            }
+            foreach ($updateErrorsOnCustomer as $violation) {
+                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+            }
+            // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY (422)
+            if ($messages != []) {
+                return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
+            } else {
+                // Dans le cas où il n'y a pas d'erreur, on modifie la date de mise à jour
+                $currentDelivery->setUpdatedAt(new DateTime());
             }
 
             $entityManager->flush();
