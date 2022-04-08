@@ -58,11 +58,13 @@ class Delivery
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("api_deliveries_details")
      */
     private $created_at;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups("api_deliveries_details")
      */
     private $updated_at;
 
