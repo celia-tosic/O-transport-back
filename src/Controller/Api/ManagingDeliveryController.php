@@ -147,18 +147,22 @@ class ManagingDeliveryController extends AbstractController
 
         
         // On vérifie la validité des données gràce au Validator Interface 
+        // On fabrique un tableau d'erreur vide
         $messages = []; 
+        // On vérifie si il y a des erreurs dans l'entité Delivery
         $errorsD = $validator->validate($delivery);
+        // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
         foreach($errorsD as $violation) {
             $messages[$violation->getPropertyPath()][] = $violation->getMessage();
         }
+        // On fait pareil pour l'entité Customer
         $errorsC = $validator->validate($customer);
         foreach($errorsC as $violation) {
             $messages[$violation->getPropertyPath()][] = $violation->getMessage();
         }
-
+        // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY
         if ($messages != []) {
-            return $this->json($messages, Response::HTTP_NOT_FOUND);
+            return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         //on affecte le customer récupéré/créé à la livraison
