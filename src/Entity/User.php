@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -27,6 +28,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
+     * @Assert\NotBlank(message="L'email est obligatoire")
+     * @Assert\Email
      */
     private $email;
 
@@ -40,6 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Groups("api_drivers_delete")
+     * @Assert\NotBlank(message="Le mot de passe est obligatoire")
      */
     private $password;
 
@@ -47,7 +51,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
-     * @Groups("api_deliveries_list")
+     * @Assert\NotBlank(message="Le prénom est obligatoire")
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     *      minMessage = "Le prénom doit faire au minimum {{ limit }} caractères",
+     *      maxMessage = "Le prénom doit faire au maximum {{ limit }} caractères"
+     * )
      */
     private $firstname;
 
@@ -55,7 +65,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=50)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
-     * @Groups("api_deliveries_list")
+     * @Assert\NotBlank(message="Le nom est obligatoire")
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     *      minMessage = "Le nom doit faire au minimum {{ limit }} caractères",
+     *      maxMessage = "Le nom doit faire au maximum {{ limit }} caractères"
+     * )
      */
     private $lastname;
 
@@ -69,6 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
+     * @Assert\NotBlank(message="Le numéro de téléphone est obligatoire")
      */
     private $phoneNumber;
 
