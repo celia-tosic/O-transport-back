@@ -42,7 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Groups({"api_drivers_delete", "api_drivers_details"})
+     * @Groups("api_drivers_delete")
      * @Assert\NotBlank(message="Le mot de passe est obligatoire")
      */
     private $password;
