@@ -85,14 +85,8 @@ class ManagingDriverController extends AbstractController
 
         if (count($errors) > 0)
         {            
-            $messages = [];
-            foreach ($errors as $violation) {
-                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-            }
-            return $this->json($messages, Response::HTTP_NOT_FOUND);
-           
+            return JsonErrorResponse::sendValidatorErrors($errors, 404);
         }
-
 
         $entityManager = $doctrine->getManager();
         //doctrine prend en charge l'utilisateur créé...
@@ -137,17 +131,13 @@ class ManagingDriverController extends AbstractController
             $user->setPassword($hashedPassword);
         }
 
-          // Validation des données avec le validator (@Assert dans les entités)
-          $errors = $validator->validate($user);
+        // Validation des données avec le validator (@Assert dans les entités)
+        $errors = $validator->validate($user);
 
-          if (count($errors) > 0)
-          {
-            $messages = [];
-            foreach ($errors as $violation) {
-                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-            }
-            return $this->json($messages, Response::HTTP_NOT_FOUND);
-          }
+        if (count($errors) > 0)
+        {
+            return JsonErrorResponse::sendValidatorErrors($errors, 404);
+        }
 
         // On enregistre l'utilisateur avec les modifications en BDD
         $entityManager = $doctrine->getManager();
