@@ -9,12 +9,10 @@ use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -37,9 +35,9 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
-        /**
+    /**
      * get list of pending deliveries (status = 1)
-     * @Route("/shipping", name="pending_list", methods="GET")
+     * @Route("/shipping", name="shipping_list", methods="GET")
      */
     public function shippingList(DeliveryRepository $deliveryRepository): Response
     {
