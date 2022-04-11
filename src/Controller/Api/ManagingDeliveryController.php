@@ -201,13 +201,12 @@ class ManagingDeliveryController extends AbstractController
                 $currentDelivery->setComment($deliveryToUpdate['comment']);
             }
             if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
-                $existingCustomer = $customerRepository->findByName($customerToUpdate['name']);
+                $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
                 if (empty($existingCustomer)) {
                     $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
                 } else {
                     //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
-                    $currentDelivery->setCustomer($existingCustomer[0]);
-                    // $currentDelivery->setCustomer($customerRepository->findByName($existing));
+                    $currentDelivery->setCustomer($existingCustomer);
                 }
             }
             if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
