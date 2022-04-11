@@ -24,8 +24,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ManagingDeliveryController extends AbstractController
 {
 
+
     /**
-     * get list of pending deliveries
+     * get list of pending deliveries (status = 0)
      * @Route("/pending", name="pending_list", methods="GET")
      */
     public function pendingList(DeliveryRepository $deliveryRepository): Response
@@ -36,8 +37,21 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
+        /**
+     * get list of pending deliveries (status = 1)
+     * @Route("/shipping", name="pending_list", methods="GET")
+     */
+    public function shippingList(DeliveryRepository $deliveryRepository): Response
+    {
+        // préparer les données
+        $shippingList = $deliveryRepository->findShippingDeliveries();
+        //La méthode json va "serializer" les données, c'est à dire les transformer en JSON.
+        return $this->json($shippingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
+    }
+
+
     /**
-     * Get list of completed deliveries
+     * Get list of completed deliveries (status = 2)
      * @Route("/completed", name="completed_list", methods="GET")
      */
     public function completedList(DeliveryRepository $deliveryRepository): Response
@@ -108,7 +122,7 @@ class ManagingDeliveryController extends AbstractController
         $delivery->setCreatedAt(new DateTime());
         $delivery->setUpdatedAt(null);
         //TODO il faut que l'admin corresponde à l'utilisateur créant la livraison (En session)
-        $delivery->setAdmin($userRepository->find(3));
+        // $delivery->setAdmin($userRepository->find(3));
         $delivery->setStatus(0);
 
         // On fabrique les tests en testant de récupérer les données dans la table Customer

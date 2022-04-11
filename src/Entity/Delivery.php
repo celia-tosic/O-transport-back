@@ -79,7 +79,7 @@ class Delivery
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCreatedByAdmin")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $admin;
 
