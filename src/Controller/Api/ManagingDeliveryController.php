@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Response\JsonErrorResponse;
 
 /**
  * @Route("/api/admin/deliveries", name="api_deliveries_")
@@ -74,13 +75,9 @@ class ManagingDeliveryController extends AbstractController
         // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
 
         // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
-        if (is_null($deliveryToUpdate)) {
-            $data =
-                [
-                    'error' => true,
-                    'message' => 'Cette livraison est inconnu',
-                ];
-            return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_deliveries_details"]);
+        if (is_null($deliveryToUpdate)) 
+        {
+            return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
 
         // On décode le json reçu pour ne prendre que l'ID envoyé 
@@ -272,15 +269,10 @@ class ManagingDeliveryController extends AbstractController
         $entityManager = $doctrine->getManager();
 
         //On gère le cas où la livraison n'existe pas 
-        if (is_null($deliveryToDelete)) {
-            $data =
-                [
-                    'error' => true,
-                    'message' => 'Driver not found',
-                ];
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+        if (is_null($deliveryToDelete)) 
+        {
+            return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
-
 
         $entityManager->remove($deliveryToDelete);
         $entityManager->flush();
