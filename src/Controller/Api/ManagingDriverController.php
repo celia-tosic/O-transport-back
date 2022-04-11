@@ -55,7 +55,7 @@ class ManagingDriverController extends AbstractController
                 'error' => true,
                 'message' => 'utilisateur inconnu',
             ];
-            return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_drivers_details"]);
+            return $this->json($data, Response::HTTP_NOT_FOUND);
         }
 
         //On retourne le résultat en JSON
