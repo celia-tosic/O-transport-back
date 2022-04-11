@@ -181,7 +181,7 @@ class ManagingDeliveryController extends AbstractController
 
     /**
      * Get content and route to POST update an existing delivery
-     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "PUT"})
      */
     public function readAndUpdate(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
@@ -196,7 +196,7 @@ class ManagingDeliveryController extends AbstractController
 
 
         if ($jsonContent != "") {
-            // Ici nous traitons la méthode POST de la requête
+            // Ici nous traitons la méthode PUT de la requête
             // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
             $decode = json_decode($jsonContent, true);
             $deliveryToUpdate = $decode['delivery'];
