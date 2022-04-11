@@ -17,7 +17,7 @@ use App\Response\JsonErrorResponse;
 
 /**
  * 
- * @Route("/api/drivers", name="api_drivers_")
+ * @Route("/api/admin/drivers", name="api_drivers_")
  */
 class ManagingDriverController extends AbstractController
 {
@@ -50,12 +50,7 @@ class ManagingDriverController extends AbstractController
         //On gère le cas si l'utilisateur n'existe pas
         if (is_null($user))
         {
-            $data = 
-            [
-                'error' => true,
-                'message' => 'utilisateur inconnu',
-            ];
-            return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_drivers_details"]);
+            return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
         //On retourne le résultat en JSON
@@ -90,14 +85,8 @@ class ManagingDriverController extends AbstractController
 
         if (count($errors) > 0)
         {            
-            $messages = [];
-            foreach ($errors as $violation) {
-                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-            }
-            return $this->json($messages, Response::HTTP_NOT_FOUND);
-           
+            return JsonErrorResponse::sendValidatorErrors($errors, 404);
         }
-
 
         $entityManager = $doctrine->getManager();
         //doctrine prend en charge l'utilisateur créé...
@@ -124,12 +113,7 @@ class ManagingDriverController extends AbstractController
         //On gèrer le cas où l'utilisateur n'existe pas en BDD
         if (is_null($user))
         {
-            $data = [
-                'error' => true,
-                'message' => 'Utilisateur inconnu',
-            ];
-
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+            return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
         // On récupère les données modifiées depuis la requête
@@ -147,17 +131,13 @@ class ManagingDriverController extends AbstractController
             $user->setPassword($hashedPassword);
         }
 
-          // Validation des données avec le validator (@Assert dans les entités)
-          $errors = $validator->validate($user);
+        // Validation des données avec le validator (@Assert dans les entités)
+        $errors = $validator->validate($user);
 
-          if (count($errors) > 0)
-          {
-            $messages = [];
-            foreach ($errors as $violation) {
-                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-            }
-            return $this->json($messages, Response::HTTP_NOT_FOUND);
-          }
+        if (count($errors) > 0)
+        {
+            return JsonErrorResponse::sendValidatorErrors($errors, 404);
+        }
 
         // On enregistre l'utilisateur avec les modifications en BDD
         $entityManager = $doctrine->getManager();
@@ -183,12 +163,7 @@ class ManagingDriverController extends AbstractController
         //On gère le cas où l'utilisateur n'existe pas 
         if (is_null($user))
         {
-            $data = 
-            [
-                'error' => true,
-                'message' => 'Utilisateur inconnu',
-            ];
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+            return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
         //On supprime l'utilisateur de la BDD

@@ -44,7 +44,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # Page de login toujours accessible        
+        # Les ACL de notre API :
+        # - { path: ^/api/admin, roles: ROLE_ADMIN }
+        # Page de login toujours accessible à tous       
         # - { path: ^/api/login, roles: PUBLIC_ACCESS }
         #  On sécurise tout nos routes d'api 
         # - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
