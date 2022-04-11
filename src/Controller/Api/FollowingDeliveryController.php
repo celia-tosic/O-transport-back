@@ -39,13 +39,27 @@ class FollowingDeliveryController extends AbstractController
         $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
 
         // On vérifie que la livraison soit bien attribué au chauffeur
+        if ($userToSwitchStatus->getStatus() == 1) {
+            $data =
+            [
+                'error' => true,
+                'message' => 'Vous ne pouvez commencer deux livraisons simultanément',
+            ];
+        return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_deliveries_details"]);
+        }
+
         $entityManager = $doctrine->getManager(); 
         
         $userToSwitchStatus->setStatus(1);
         $deliveryToSwitchStatus->setStatus(1);
+        $data =
+        [
+            'message' => 'Livraison commencée',
+        ];
+
         $entityManager->flush(); 
         
-        return $this->json($userToSwitchStatus, Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
+        return $this->json($data, Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
 
     }
 
@@ -73,3 +87,4 @@ class FollowingDeliveryController extends AbstractController
 
 
 }
+
