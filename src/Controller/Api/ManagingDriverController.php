@@ -50,12 +50,7 @@ class ManagingDriverController extends AbstractController
         //On gère le cas si l'utilisateur n'existe pas
         if (is_null($user))
         {
-            $data = 
-            [
-                'error' => true,
-                'message' => 'utilisateur inconnu',
-            ];
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+            return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
         //On retourne le résultat en JSON
@@ -124,12 +119,7 @@ class ManagingDriverController extends AbstractController
         //On gèrer le cas où l'utilisateur n'existe pas en BDD
         if (is_null($user))
         {
-            $data = [
-                'error' => true,
-                'message' => 'Utilisateur inconnu',
-            ];
-
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+            return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
         // On récupère les données modifiées depuis la requête
@@ -183,12 +173,7 @@ class ManagingDriverController extends AbstractController
         //On gère le cas où l'utilisateur n'existe pas 
         if (is_null($user))
         {
-            $data = 
-            [
-                'error' => true,
-                'message' => 'Utilisateur inconnu',
-            ];
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+            return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
         //On supprime l'utilisateur de la BDD
