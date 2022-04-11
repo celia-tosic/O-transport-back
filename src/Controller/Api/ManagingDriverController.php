@@ -17,7 +17,7 @@ use App\Response\JsonErrorResponse;
 
 /**
  * 
- * @Route("/api/drivers", name="api_drivers_")
+ * @Route("/api/admin/drivers", name="api_drivers_")
  */
 class ManagingDriverController extends AbstractController
 {
