@@ -33,7 +33,7 @@ class DeliveryRepository extends ServiceEntityRepository
             'SELECT d, c
             FROM App\Entity\Delivery d
             INNER JOIN d.customer c
-            WHERE d.status = 1'
+            WHERE d.status = 0'
         );
 
         return $query->getResult(); 
