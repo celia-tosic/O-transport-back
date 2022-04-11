@@ -20,7 +20,7 @@ final class Version20220404090816 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE delivery ADD customer_id INT NOT NULL, ADD admin_id INT NOT NULL, ADD driver_id INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE delivery ADD customer_id INT NOT NULL, ADD admin_id INT DEFAULT NULL, ADD driver_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC109395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (id)');
         $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC10642B8210 FOREIGN KEY (admin_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC10C3423909 FOREIGN KEY (driver_id) REFERENCES user (id)');

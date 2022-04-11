@@ -39,6 +39,24 @@ class DeliveryRepository extends ServiceEntityRepository
         return $query->getResult(); 
     }
 
+        /**
+     * return all deliveries shipping
+     *
+     */
+    public function findShippingDeliveries() {
+
+        $entityManager = $this->getEntityManager(); 
+
+        $query = $entityManager->createQuery(
+            'SELECT d, c
+            FROM App\Entity\Delivery d
+            INNER JOIN d.customer c
+            WHERE d.status = 1'
+        );
+
+        return $query->getResult(); 
+    }
+
     /**
      * return all deliveries pending
      *
