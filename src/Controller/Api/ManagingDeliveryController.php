@@ -39,7 +39,7 @@ class ManagingDeliveryController extends AbstractController
 
         /**
      * get list of pending deliveries (status = 1)
-     * @Route("/shipping", name="pending_list", methods="GET")
+     * @Route("/shipping", name="shipping_list", methods="GET")
      */
     public function shippingList(DeliveryRepository $deliveryRepository): Response
     {
