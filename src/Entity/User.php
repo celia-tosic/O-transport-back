@@ -94,7 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
-     * @Groups({"api_drivers_list", "api_drivers_delete"})
+     * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_list")
      */
     private $status;
