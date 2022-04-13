@@ -86,7 +86,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
      * @ORM\JoinColumn(nullable=true)
-     * @Groups("api_deliveries_list")
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $driver;
     

@@ -36,13 +36,8 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
-<<<<<<< HEAD
-    /**
-     * get list of pending deliveries (status = 1)
-=======
         /**
      * get list of shipping deliveries (status = 1)
->>>>>>> controllers
      * @Route("/shipping", name="shipping_list", methods="GET")
      */
     public function shippingList(DeliveryRepository $deliveryRepository): Response
