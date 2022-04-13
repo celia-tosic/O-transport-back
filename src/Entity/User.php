@@ -42,8 +42,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Groups("api_drivers_delete")
      * @Assert\NotBlank(message="Le mot de passe est obligatoire")
+     * @Assert\Length(
+     *      min = 6,
+     *      max = 50,
+     *      minMessage = "Le mot de passe doit faire au minimum {{ limit }} caractères",
+     *      maxMessage = "Le mot de passe doit faire au maximum {{ limit }} caractères"
+     * )
      */
     private $password;
 
