@@ -23,7 +23,7 @@ class FollowingDeliveryController extends AbstractController
     */
     public function showDeliveries(int $id , DeliveryRepository $deliveryRepository): Response {
 
-        $deliveryList = $deliveryRepository->findAllDeliveriesByDriver($id);
+        $deliveryList = $deliveryRepository->findAllDeliveryToCompleteByDriver($id);
     
         return $this->json($deliveryList, Response::HTTP_OK, [], ['groups'=>"api_driver_deliveries"]);
     }

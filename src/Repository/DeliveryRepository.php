@@ -78,14 +78,15 @@ class DeliveryRepository extends ServiceEntityRepository
 
      * return all deliveries for one driver
      */
-    public function findAllDeliveriesByDriver($id) {
+    public function findAllDeliveryToCompleteByDriver($id) {
 
         $entityManager = $this->getEntityManager(); 
 
         $query = $entityManager->createQuery(
             'SELECT d 
             FROM App\Entity\Delivery d 
-            WHERE d.driver = :id'
+            WHERE d.driver = :id
+            AND (d.status = 1 OR d.status = 0)' 
         )->setParameter('id', $id);
             
 
