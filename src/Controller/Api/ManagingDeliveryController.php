@@ -36,7 +36,7 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
-        /**
+    /**
      * get list of shipping deliveries (status = 1)
      * @Route("/shipping", name="shipping_list", methods="GET")
      */
@@ -64,31 +64,38 @@ class ManagingDeliveryController extends AbstractController
     /**
      * Update the driver for a specific delivery
      *
-     * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods="PUT")
+     * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods={"GET", "PUT"})
      */
     public function affectDriver(int $id, UserRepository $userRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine): Response
     {
-        $decode = $deliveryRepository->find($id);
+        $deliveryObject = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
         // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
 
-        // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
-      
-        if (is_null($decode)) {
-             return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
+        // On traite la récupération du listing des Drivers en json
+        if ($jsonContent != "") {
+
+            // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
+            // if (is_null($deliveryObject)) {
+            //      return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
+            // }
+
+            // On décode le json reçu pour ne prendre que l'ID envoyé
+            $decodedDriverId = json_decode($jsonContent, true);
+            // On récupère l'objet User correspondant
+            $userToAffect = $userRepository->find($decodedDriverId);
+            // On l'affect à la livraison
+            $deliveryObject->setDriver($userToAffect);
+
+            $entityManager = $doctrine->getManager();
+            $entityManager->flush();
+
+            return $this->json($deliveryObject, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+        } else {
         }
-
-        // On décode le json reçu pour ne prendre que l'ID envoyé 
-        $decodedDriverId = json_decode($jsonContent, true);
-        // On récupère l'objet User correspondant
-        $userToAffect = $userRepository->find($decodedDriverId);
-        // On l'affect à la livraison
-        $decode->setDriver($userToAffect);
-
-        $entityManager = $doctrine->getManager();
-        $entityManager->flush();
-
-        return $this->json($decode, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+        $driverList = $userRepository->findAllDrivers();
+        // Ici nous traitons la méthode GET de la requête
+        return $this->json($driverList, Response::HTTP_OK, [], ['groups' => "api_drivers_list"]);
     }
 
     /**
@@ -266,8 +273,7 @@ class ManagingDeliveryController extends AbstractController
         $entityManager = $doctrine->getManager();
 
         //On gère le cas où la livraison n'existe pas 
-        if (is_null($deliveryToDelete)) 
-        {
+        if (is_null($deliveryToDelete)) {
             return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
 
