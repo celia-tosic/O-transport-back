@@ -16,7 +16,7 @@ class Delivery
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"api_deliveries_details", "api_delivery_deleted"})
+     * @Groups({"api_deliveries_details", "api_delivery_deleted", "api_driver_deliveries"})
      * @Groups("api_deliveries_list")
      */
     private $id;
@@ -86,7 +86,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCarriedByDriver")
      * @ORM\JoinColumn(nullable=true)
-     * @Groups("api_deliveries_list")
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $driver;
     
