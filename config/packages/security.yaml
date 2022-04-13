@@ -45,6 +45,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # Les ACL de notre API :
+        - { path: ^/api/admin/deliveries/\d+$, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         # Page de login toujours accessible à tous       
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
