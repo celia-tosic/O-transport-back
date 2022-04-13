@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Response\JsonErrorResponse;
 
 /**
  * @Route("/api/admin/deliveries", name="api_deliveries_")
@@ -35,8 +36,13 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
+<<<<<<< HEAD
     /**
      * get list of pending deliveries (status = 1)
+=======
+        /**
+     * get list of shipping deliveries (status = 1)
+>>>>>>> controllers
      * @Route("/shipping", name="shipping_list", methods="GET")
      */
     public function shippingList(DeliveryRepository $deliveryRepository): Response
@@ -67,18 +73,14 @@ class ManagingDeliveryController extends AbstractController
      */
     public function affectDriver(int $id, UserRepository $userRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine): Response
     {
-        $deliveryToUpdate = $deliveryRepository->find($id);
+        $decode = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
         // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
 
         // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
-        if (is_null($deliveryToUpdate)) {
-            $data =
-                [
-                    'error' => true,
-                    'message' => 'Cette livraison est inconnu',
-                ];
-            return $this->json($data, Response::HTTP_NOT_FOUND, [], ['groups' => "api_deliveries_details"]);
+      
+        if (is_null($decode)) {
+             return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
 
         // On décode le json reçu pour ne prendre que l'ID envoyé 
@@ -86,12 +88,12 @@ class ManagingDeliveryController extends AbstractController
         // On récupère l'objet User correspondant
         $userToAffect = $userRepository->find($decodedDriverId);
         // On l'affect à la livraison
-        $deliveryToUpdate->setDriver($userToAffect);
+        $decode->setDriver($userToAffect);
 
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
 
-        return $this->json($deliveryToUpdate, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+        return $this->json($decode, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
     }
 
     /**
@@ -179,7 +181,7 @@ class ManagingDeliveryController extends AbstractController
 
     /**
      * Get content and route to POST update an existing delivery
-     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "PUT"})
      */
     public function readAndUpdate(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
@@ -194,23 +196,22 @@ class ManagingDeliveryController extends AbstractController
 
 
         if ($jsonContent != "") {
-            // Ici nous traitons la méthode POST de la requête
+            // Ici nous traitons la méthode PUT de la requête
             // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
             $decode = json_decode($jsonContent, true);
-            $deliveryToUpdate = $decode['delivery'];
+            // $decode = $decode['delivery'];
             $customerToUpdate = $decode['customer'];
-
             $entityManager = $doctrine->getManager();
 
             // On vérifie si chaque champs à évoluer, si oui on l'update
-            if ($currentDelivery->getMerchandise() !== $deliveryToUpdate['merchandise']) {
-                $currentDelivery->setMerchandise($deliveryToUpdate['merchandise']);
+            if ($currentDelivery->getMerchandise() !== $decode['merchandise']) {
+                $currentDelivery->setMerchandise($decode['merchandise']);
             }
-            if ($currentDelivery->getVolume() !== $deliveryToUpdate['volume']) {
-                $currentDelivery->setVolume($deliveryToUpdate['volume']);
+            if ($currentDelivery->getVolume() !== $decode['volume']) {
+                $currentDelivery->setVolume($decode['volume']);
             }
-            if ($currentDelivery->getComment() !== $deliveryToUpdate['comment']) {
-                $currentDelivery->setComment($deliveryToUpdate['comment']);
+            if ($currentDelivery->getComment() !== $decode['comment']) {
+                $currentDelivery->setComment($decode['comment']);
             }
             if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
                 $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
@@ -270,15 +271,10 @@ class ManagingDeliveryController extends AbstractController
         $entityManager = $doctrine->getManager();
 
         //On gère le cas où la livraison n'existe pas 
-        if (is_null($deliveryToDelete)) {
-            $data =
-                [
-                    'error' => true,
-                    'message' => 'Driver not found',
-                ];
-            return $this->json($data, Response::HTTP_NOT_FOUND);
+        if (is_null($deliveryToDelete)) 
+        {
+            return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
-
 
         $entityManager->remove($deliveryToDelete);
         $entityManager->flush();

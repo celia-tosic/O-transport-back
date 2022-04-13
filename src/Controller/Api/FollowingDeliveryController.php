@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Response\JsonErrorResponse;
 
 /**
  * 
@@ -38,13 +39,20 @@ class FollowingDeliveryController extends AbstractController
         $userToSwitchStatus = $userRepository->find($idDriver);
         $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
 
+        // On vérifie que la livraison soit bien attribuée au chauffeur
+        if ($userToSwitchStatus->getStatus() == 1) {
+
+            return JsonErrorResponse::sendError("Vous ne pouvez commencer deux livraisons simultanément", 404);
+        }
+
         $entityManager = $doctrine->getManager(); 
         
         $userToSwitchStatus->setStatus(1);
         $deliveryToSwitchStatus->setStatus(1);
+
         $entityManager->flush(); 
         
-        return $this->json($userToSwitchStatus, Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
+        return $this->json('Livraison commencée !', Response::HTTP_ACCEPTED, [], ['groups'=>"api_driver_deliveries"]);
 
     }
 
@@ -72,3 +80,4 @@ class FollowingDeliveryController extends AbstractController
 
 
 }
+
