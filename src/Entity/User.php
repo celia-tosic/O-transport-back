@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string")
      * @Assert\NotBlank(message="Le mot de passe est obligatoire")
      * @Assert\Length(
-     *      min = 6,
+     *      min = 5,
      *      max = 50,
      *      minMessage = "Le mot de passe doit faire au minimum {{ limit }} caractères",
      *      maxMessage = "Le mot de passe doit faire au maximum {{ limit }} caractères"
