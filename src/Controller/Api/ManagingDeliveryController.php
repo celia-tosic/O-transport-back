@@ -216,12 +216,21 @@ class ManagingDeliveryController extends AbstractController
         if ($currentDelivery->getComment() !== $decode['comment']) {
             $currentDelivery->setComment($decode['comment']);
         }
+        // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
         if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
+            // pour vérifier si le nouveau client existe, on teste de requêter son nom dans le repo Customer 
             $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
+            // Si il n'existe pas
             if (empty($existingCustomer)) {
+                // On change le nom du customer actuel (on en créé pas de nouveau)
+                /**
+                 * On considère qu'il n'est pas nécessaire de créer un nouveau client dans le cadre d'une modification de livraison.
+                 * Dans le cas contraire cela laisserai un customer sans livraison, ce qui est contraire à notre vision de la BDD (1 client à au moins une livraison)
+                 */
                 $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
             } else {
                 //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
+                // Sinon on remplace le customer actuel par celui que nous avons trouvé du même nom. 
                 $currentDelivery->setCustomer($existingCustomer);
             }
         }
