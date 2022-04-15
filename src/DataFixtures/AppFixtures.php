@@ -148,7 +148,7 @@ class AppFixtures extends Fixture
 
         // --- DELIVERIES ---
 
-        $nbDeliveries = 10;
+        $nbDeliveries = 20;
 
         $merchandises = [
             'sable', 'béton', 'gravier', 'bois', 'acier', 'aluminium'
@@ -179,6 +179,7 @@ class AppFixtures extends Fixture
             if ($delivery->getStatus() == 2) {
                 // Si la livraison est terminé, elle a forcément un chauffeur
                 $driverIndex = rand(1, 4);
+                $delivery->setUpdatedAt(new DateTime());
                 $delivery->setDriver($userObjects[$driverIndex]);
             } else {
                 $driverIndex = rand(0, 4);
@@ -187,12 +188,14 @@ class AppFixtures extends Fixture
                 if ($delivery->getDriver() != null) {
                     // Si le status du driver est déjà à 1, le status de la livraison est toujours à 0
                     if ($delivery->getDriver()->getstatus() === 1) {
-                        $delivery->setStatus(0);
+                        $delivery->setStatus(0); // En cours de livraison
                     } else {
                         // Sinon la livraison est en cours donc on met la livraison et le status du driver a 1
                         $delivery->setStatus(1);
                         $delivery->getDriver()->setStatus(1);
                     }
+                } else {
+                    $delivery->setStatus(0);
                 }
             }
             $delivery->setCreatedAt(new DateTime());
