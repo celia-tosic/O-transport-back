@@ -217,11 +217,13 @@ class ManagingDeliveryController extends AbstractController
         }
         // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
         if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
+          
 
             // pour vérifier si le nouveau client existe, on teste de requêter son nom dans le repo Customer 
             $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
             // Si il n'existe pas
             if (empty($existingCustomer)) {
+
 
                 $testCustomer = $currentDelivery->getCustomer();
                 $testForDelivery = $deliveryRepository->findByCustomer($testCustomer);
@@ -243,12 +245,12 @@ class ManagingDeliveryController extends AbstractController
                 }
             } else {
                 //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
-
                 // Sinon on remplace le customer actuel par celui que nous avons trouvé du même nom. 
                 $currentDelivery->setCustomer($existingCustomer);
             }
         }
         if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
+
             $customerToCreate = new Customer();
 
             $customerToCreate->setName($customerToUpdate['name']);
@@ -261,7 +263,7 @@ class ManagingDeliveryController extends AbstractController
         if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
             $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
         }
-
+      
         // Ici on test la validité des inputs modifiés
         // On fabrique un tableau d'erreur vide
         $messages = [];

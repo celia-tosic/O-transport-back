@@ -75,10 +75,6 @@ class ManagingDriverController extends AbstractController
         // On attribue un role Driver et un statut 0(=disponible) par défaut
         $user->setRoles(["ROLE_DRIVER"]);   
         $user->setStatus(0);  
-        
-        // On hash le mot de passe 
-        $hashedPassword = $hasher->hashPassword($user, $user->getPassword());
-        $user->setPassword($hashedPassword);
 
         // Validation des données avec le validator (@Assert dans les entités)
         $errors = $validator->validate($user);
@@ -87,6 +83,10 @@ class ManagingDriverController extends AbstractController
         {            
             return JsonErrorResponse::sendValidatorErrors($errors, 404);
         }
+        
+        // On hash le mot de passe 
+        $hashedPassword = $hasher->hashPassword($user, $user->getPassword());
+        $user->setPassword($hashedPassword);
 
         $entityManager = $doctrine->getManager();
         //doctrine prend en charge l'utilisateur créé...
@@ -95,7 +95,7 @@ class ManagingDriverController extends AbstractController
         $entityManager->flush();
         
         //On retourne au format JSON l'utilisateur créé. 
-        return $this->json($user, 201, [], ['groups' => 'api_drivers_details']);
+        return $this->json('', 201);
     }
 
      /**
@@ -124,19 +124,12 @@ class ManagingDriverController extends AbstractController
         
         // Pour vérifier si on nous a envoyé un mot de passe, on désérialise le json et on vérifie si un champ mot de passe existe 
         $userObject = json_decode($requestContentInJson);
+
         
         if (isset($userObject->password))
         {
             $hashedPassword = $hasher->hashPassword($user, $userObject->password);
             $user->setPassword($hashedPassword);
-        }
-
-        // Validation des données avec le validator (@Assert dans les entités)
-        $errors = $validator->validate($user);
-
-        if (count($errors) > 0)
-        {
-            return JsonErrorResponse::sendValidatorErrors($errors, 404);
         }
 
         // On enregistre l'utilisateur avec les modifications en BDD

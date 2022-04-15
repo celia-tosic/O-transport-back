@@ -19,14 +19,14 @@ class JsonErrorResponse extends Response
     }
 
 
-    public static function sendValidatorErrors($errors, int $httpCode)
+    public static function sendValidatorErrors($errors)
     {
         $messages = [];
 
         foreach ($errors as $violation) {
-            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+            $messages[$violation->getPropertyPath()] = $violation->getMessage();
         }
-        return new JsonResponse($messages, $httpCode);
+        return new JsonResponse($messages);
     }
 
 }
