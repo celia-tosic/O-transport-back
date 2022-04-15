@@ -21,6 +21,26 @@ class CustomerRepository extends ServiceEntityRepository
         parent::__construct($registry, Customer::class);
     }
 
+    public function createCustomerFromArray($array)
+    {
+        $customerToCreate = new Customer();
+
+        $customerToCreate->setName($array['name']);
+        $customerToCreate->setAddress($array['address']);
+        $customerToCreate->setPhoneNumber($array['phoneNumber']);
+
+        return $customerToCreate;
+    }
+
+    public function setCustomerFromArray(Customer $customer, $array)
+    {
+
+        $customer->setName($array['name']);
+        $customer->setAddress($array['address']);
+        $customer->setPhoneNumber($array['phoneNumber']);
+
+        return $customer;
+    }
     /**
      * @throws ORMException
      * @throws OptimisticLockException

@@ -206,15 +206,17 @@ class ManagingDeliveryController extends AbstractController
         $entityManager = $doctrine->getManager();
 
         // On vérifie si chaque champs à évoluer, si oui on l'update
-        if ($currentDelivery->getMerchandise() !== $decode['merchandise']) {
-            $currentDelivery->setMerchandise($decode['merchandise']);
-        }
-        if ($currentDelivery->getVolume() !== $decode['volume']) {
-            $currentDelivery->setVolume($decode['volume']);
-        }
-        if ($currentDelivery->getComment() !== $decode['comment']) {
-            $currentDelivery->setComment($decode['comment']);
-        }
+        $deliveryRepository->decodeDeliveryAndUpdate($currentDelivery, $decode);
+        // if ($currentDelivery->getMerchandise() !== $decode['merchandise']) {
+        //     $currentDelivery->setMerchandise($decode['merchandise']);
+        // }
+        // if ($currentDelivery->getVolume() !== $decode['volume']) {
+        //     $currentDelivery->setVolume($decode['volume']);
+        // }
+        // if ($currentDelivery->getComment() !== $decode['comment']) {
+        //     $currentDelivery->setComment($decode['comment']);
+        // }
+
         // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
         if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
           
@@ -224,41 +226,56 @@ class ManagingDeliveryController extends AbstractController
             // Si il n'existe pas
             if (empty($existingCustomer)) {
 
+                $testIfMoreThanOnce = $deliveryRepository->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
 
-                $testCustomer = $currentDelivery->getCustomer();
-                $testForDelivery = $deliveryRepository->findByCustomer($testCustomer);
-                $testIfOtherDeliveries = count($testForDelivery) > 1;
+                if ($testIfMoreThanOnce == false) {
+                    
+                    $customerRepository->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
 
-                if (!$testIfOtherDeliveries) {
-                    $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
-                    $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
-                    $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
+                    // $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
+                    // $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
+                    // $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
+
+
                 } else {
-
                     // Si le nom du client renseigné n'existe pas, vérifie si il a déjà fait des livraisons. 
-                    $customerToCreate = new Customer();
-                    $customerToCreate->setName($customerToUpdate['name']);
-                    $customerToCreate->setAddress($customerToUpdate['address']);
-                    $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+                    $customerToCreate = $customerRepository->createCustomerFromArray($customerToUpdate);
+                    // $customerToCreate = new Customer();
+                    // $customerToCreate->setName($customerToUpdate['name']);
+                    // $customerToCreate->setAddress($customerToUpdate['address']);
+                    // $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
                     $entityManager->persist($customerToCreate);
                     $currentDelivery->setCustomer($customerToCreate);
                 }
             } else {
-                //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
+                
                 // Sinon on remplace le customer actuel par celui que nous avons trouvé du même nom. 
                 $currentDelivery->setCustomer($existingCustomer);
             }
         }
         if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
 
-            $customerToCreate = new Customer();
+            $testIfMoreThanOnce = $deliveryRepository->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
 
-            $customerToCreate->setName($customerToUpdate['name']);
-            $customerToCreate->setAddress($customerToUpdate['address']);
-            $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+            if ($testIfMoreThanOnce == false) {
 
-            $entityManager->persist($customerToCreate);
-            $currentDelivery->setCustomer($customerToCreate);
+                $customerRepository->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
+                
+            } else {
+                // $customerToCreate = new Customer();
+                $customerToCreate = $customerRepository->createCustomerFromArray($customerToUpdate);
+
+                // $testCustomer = $currentDelivery->getCustomer();
+                // $testForDelivery = $deliveryRepository->findByCustomer($testCustomer);
+                // $testIfOtherDeliveries = count($testForDelivery) > 1;
+
+                // $customerToCreate->setName($customerToUpdate['name']);
+                // $customerToCreate->setAddress($customerToUpdate['address']);
+                // $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+
+                $entityManager->persist($customerToCreate);
+                $currentDelivery->setCustomer($customerToCreate);
+            }
         }
         if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
             $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
