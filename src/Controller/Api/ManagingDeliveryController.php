@@ -64,38 +64,32 @@ class ManagingDeliveryController extends AbstractController
     /**
      * Update the driver for a specific delivery
      *
-     * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods={"GET", "PUT"})
+     * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods="PUT")
      */
     public function affectDriver(int $id, UserRepository $userRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine): Response
     {
-        $deliveryObject = $deliveryRepository->find($id);
+        $currentDelivery = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
         // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
 
-        // On traite la récupération du listing des Drivers en json
-        if ($jsonContent != "") {
+        // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
 
-            // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
-            // if (is_null($deliveryObject)) {
-            //      return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
-            // }
-
-            // On décode le json reçu pour ne prendre que l'ID envoyé
-            $decodedDriverId = json_decode($jsonContent, true);
-            // On récupère l'objet User correspondant
-            $userToAffect = $userRepository->find($decodedDriverId);
-            // On l'affect à la livraison
-            $deliveryObject->setDriver($userToAffect);
-
-            $entityManager = $doctrine->getManager();
-            $entityManager->flush();
-
-            return $this->json($deliveryObject, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
-        } else {
+        if (is_null($currentDelivery)) {
+            return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
-        $driverList = $userRepository->findAllDrivers();
-        // Ici nous traitons la méthode GET de la requête
-        return $this->json($driverList, Response::HTTP_OK, [], ['groups' => "api_drivers_list"]);
+
+        // On décode le json reçu pour ne prendre que l'ID envoyé 
+        $decodedDriverId = json_decode($jsonContent, true);
+        // dd($decodedDriverId);
+        // On récupère l'objet User correspondant
+        $userToAffect = $userRepository->find($decodedDriverId);
+        // On l'affect à la livraison
+        $currentDelivery->setDriver($userToAffect);
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->flush();
+
+        return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
     }
 
     /**
@@ -182,10 +176,21 @@ class ManagingDeliveryController extends AbstractController
     }
 
     /**
-     * Get content and route to POST update an existing delivery
-     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods={"GET", "PUT"})
+     * Get content and route to read an existing delivery
+     * @Route("/{id}", name="read", requirements={"id"="\d+"}, methods="GET")
      */
-    public function readAndUpdate(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function read(int $id, DeliveryRepository $deliveryRepository): Response
+    {
+        $currentDelivery = $deliveryRepository->find($id);
+
+        return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+    }
+
+    /**
+     * Get content and route to POST update an existing delivery
+     * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods="PUT")
+     */
+    public function update(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);
@@ -193,72 +198,94 @@ class ManagingDeliveryController extends AbstractController
         // On récupère le contenu en JSON
         $jsonContent = $request->getContent();
 
-
+        // Ici nous traitons la méthode PUT de la requête
         // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
+        $decode = json_decode($jsonContent, true);
+        // $decode = $decode['delivery'];
+        $customerToUpdate = $decode['customer'];
+        $entityManager = $doctrine->getManager();
 
-
-        if ($jsonContent != "") {
-            // Ici nous traitons la méthode PUT de la requête
-            // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
-            $decode = json_decode($jsonContent, true);
-            // $decode = $decode['delivery'];
-            $customerToUpdate = $decode['customer'];
-            $entityManager = $doctrine->getManager();
-
-            // On vérifie si chaque champs à évoluer, si oui on l'update
-            if ($currentDelivery->getMerchandise() !== $decode['merchandise']) {
-                $currentDelivery->setMerchandise($decode['merchandise']);
-            }
-            if ($currentDelivery->getVolume() !== $decode['volume']) {
-                $currentDelivery->setVolume($decode['volume']);
-            }
-            if ($currentDelivery->getComment() !== $decode['comment']) {
-                $currentDelivery->setComment($decode['comment']);
-            }
-            if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
-                $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
-                if (empty($existingCustomer)) {
-                    $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
-                } else {
-                    //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
-                    $currentDelivery->setCustomer($existingCustomer);
-                }
-            }
-            if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
-                $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
-            }
-            if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
-                $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
-            }
-
-            // Ici on test la validité des inputs modifiés
-            // On fabrique un tableau d'erreur vide
-            $messages = [];
-            // On vérifie si il y a des erreurs dans l'entité Delivery
-            $updateErrorsOnDelivery = $validator->validate($currentDelivery);
-            $updateErrorsOnCustomer = $validator->validate($currentDelivery->getCustomer());
-            // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
-            foreach ($updateErrorsOnDelivery as $violation) {
-                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-            }
-            foreach ($updateErrorsOnCustomer as $violation) {
-                $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-            }
-            // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY (422)
-            if ($messages != []) {
-                return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
-            } else {
-                // Dans le cas où il n'y a pas d'erreur, on modifie la date de mise à jour
-                $currentDelivery->setUpdatedAt(new DateTime());
-            }
-
-            $entityManager->flush();
-
-            return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
-        } else {
-            // Ici nous traitons la méthode GET de la requête
-            return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
+        // On vérifie si chaque champs à évoluer, si oui on l'update
+        if ($currentDelivery->getMerchandise() !== $decode['merchandise']) {
+            $currentDelivery->setMerchandise($decode['merchandise']);
         }
+        if ($currentDelivery->getVolume() !== $decode['volume']) {
+            $currentDelivery->setVolume($decode['volume']);
+        }
+        if ($currentDelivery->getComment() !== $decode['comment']) {
+            $currentDelivery->setComment($decode['comment']);
+        }
+        // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
+        if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
+
+            // pour vérifier si le nouveau client existe, on teste de requêter son nom dans le repo Customer 
+            $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
+            // Si il n'existe pas
+            if (empty($existingCustomer)) {
+
+                $testCustomer = $currentDelivery->getCustomer();
+                $testForDelivery = $deliveryRepository->findByCustomer($testCustomer);
+                $testIfOtherDeliveries = count($testForDelivery) > 1;
+
+                if (!$testIfOtherDeliveries) {
+                    $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
+                    $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
+                    $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
+                } else {
+
+                    // Si le nom du client renseigné n'existe pas, vérifie si il a déjà fait des livraisons. 
+                    $customerToCreate = new Customer();
+                    $customerToCreate->setName($customerToUpdate['name']);
+                    $customerToCreate->setAddress($customerToUpdate['address']);
+                    $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+                    $entityManager->persist($customerToCreate);
+                    $currentDelivery->setCustomer($customerToCreate);
+                }
+            } else {
+                //TODO Pour l'instant dans notre BDD, il n'y a pas de numéro SIRET. cela devrait être changé car pour l'instant la vérification se fait sur le nom du client et cela est insuffisant
+
+                // Sinon on remplace le customer actuel par celui que nous avons trouvé du même nom. 
+                $currentDelivery->setCustomer($existingCustomer);
+            }
+        }
+        if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
+            $customerToCreate = new Customer();
+
+            $customerToCreate->setName($customerToUpdate['name']);
+            $customerToCreate->setAddress($customerToUpdate['address']);
+            $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+
+            $entityManager->persist($customerToCreate);
+            $currentDelivery->setCustomer($customerToCreate);
+        }
+        if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
+            $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
+        }
+
+        // Ici on test la validité des inputs modifiés
+        // On fabrique un tableau d'erreur vide
+        $messages = [];
+        // On vérifie si il y a des erreurs dans l'entité Delivery
+        $updateErrorsOnDelivery = $validator->validate($currentDelivery);
+        $updateErrorsOnCustomer = $validator->validate($currentDelivery->getCustomer());
+        // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
+        foreach ($updateErrorsOnDelivery as $violation) {
+            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+        }
+        foreach ($updateErrorsOnCustomer as $violation) {
+            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+        }
+        // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY (422)
+        if ($messages != []) {
+            return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
+        } else {
+            // Dans le cas où il n'y a pas d'erreur, on modifie la date de mise à jour
+            $currentDelivery->setUpdatedAt(new DateTime());
+        }
+
+        $entityManager->flush();
+
+        return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
     }
 
     /**
