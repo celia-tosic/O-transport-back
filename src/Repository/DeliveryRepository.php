@@ -21,43 +21,7 @@ class DeliveryRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Delivery::class);
     }
-    /**
-     * Function that update delivery's related content according to the json receive
-     *
-     * @param Delivery $delivery
-     * @param [type] $array
-     * @return void
-     */
-    public function decodeDeliveryAndUpdate(Delivery $delivery, $array) {
 
-        if ($delivery->getMerchandise() !== $array['merchandise']) {
-            $delivery->setMerchandise($array['merchandise']);
-        }
-        if ($delivery->getVolume() !== $array['volume']) {
-            $delivery->setVolume($array['volume']);
-        }
-        if ($delivery->getComment() !== $array['comment']) {
-            $delivery->setComment($array['comment']);
-        }
-    }
-    /**
-     * function that test if a customer have more than one Delivery ordered
-     *
-     * @param Customer $customer
-     * @return void
-     */
-    public function deliveriesRequestedMoreThanOnce(Customer $customer)
-    {
-        $result = ''; 
-        $shipmentCount = count($this->findByCustomer($customer));
-        if ($shipmentCount > 1) {
-            $result = true; 
-            return $result; 
-        } else {
-            $result = false;
-            return $result;  
-        }
-    }
     /**
      * return all deliveries pending
      *

@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Response\JsonErrorResponse;
+use App\Service\DeliveryTestsContent as ServiceDeliveryTestsContent;
 
 /**
  * @Route("/api/admin/deliveries", name="api_deliveries_")
@@ -190,7 +191,7 @@ class ManagingDeliveryController extends AbstractController
      * Get content and route to POST update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods="PUT")
      */
-    public function update(int $id, CustomerRepository $customerRepository, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function update(int $id, CustomerRepository $customerRepository, ServiceDeliveryTestsContent $deliveryCheck,DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);
@@ -206,16 +207,7 @@ class ManagingDeliveryController extends AbstractController
         $entityManager = $doctrine->getManager();
 
         // On vérifie si chaque champs à évoluer, si oui on l'update
-        $deliveryRepository->decodeDeliveryAndUpdate($currentDelivery, $decode);
-        // if ($currentDelivery->getMerchandise() !== $decode['merchandise']) {
-        //     $currentDelivery->setMerchandise($decode['merchandise']);
-        // }
-        // if ($currentDelivery->getVolume() !== $decode['volume']) {
-        //     $currentDelivery->setVolume($decode['volume']);
-        // }
-        // if ($currentDelivery->getComment() !== $decode['comment']) {
-        //     $currentDelivery->setComment($decode['comment']);
-        // }
+        $deliveryCheck->decodeDeliveryAndUpdate($currentDelivery, $decode);
 
         // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
         if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
@@ -226,24 +218,16 @@ class ManagingDeliveryController extends AbstractController
             // Si il n'existe pas
             if (empty($existingCustomer)) {
 
-                $testIfMoreThanOnce = $deliveryRepository->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
+                $testIfMoreThanOnce = $deliveryCheck->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
 
                 if ($testIfMoreThanOnce == false) {
                     
-                    $customerRepository->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
-
-                    // $currentDelivery->getCustomer()->setName($customerToUpdate['name']);
-                    // $currentDelivery->getCustomer()->setAddress($customerToUpdate['address']);
-                    // $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
-
+                    $deliveryCheck->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
 
                 } else {
                     // Si le nom du client renseigné n'existe pas, vérifie si il a déjà fait des livraisons. 
-                    $customerToCreate = $customerRepository->createCustomerFromArray($customerToUpdate);
-                    // $customerToCreate = new Customer();
-                    // $customerToCreate->setName($customerToUpdate['name']);
-                    // $customerToCreate->setAddress($customerToUpdate['address']);
-                    // $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+                    $customerToCreate = $deliveryCheck->createCustomerFromArray($customerToUpdate);
+
                     $entityManager->persist($customerToCreate);
                     $currentDelivery->setCustomer($customerToCreate);
                 }
@@ -255,23 +239,15 @@ class ManagingDeliveryController extends AbstractController
         }
         if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
 
-            $testIfMoreThanOnce = $deliveryRepository->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
+            $testIfMoreThanOnce = $deliveryCheck->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
 
             if ($testIfMoreThanOnce == false) {
 
-                $customerRepository->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
+                $deliveryCheck->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
                 
             } else {
                 // $customerToCreate = new Customer();
-                $customerToCreate = $customerRepository->createCustomerFromArray($customerToUpdate);
-
-                // $testCustomer = $currentDelivery->getCustomer();
-                // $testForDelivery = $deliveryRepository->findByCustomer($testCustomer);
-                // $testIfOtherDeliveries = count($testForDelivery) > 1;
-
-                // $customerToCreate->setName($customerToUpdate['name']);
-                // $customerToCreate->setAddress($customerToUpdate['address']);
-                // $customerToCreate->setPhoneNumber($customerToUpdate['phoneNumber']);
+                $customerToCreate = $deliveryCheck->createCustomerFromArray($customerToUpdate);
 
                 $entityManager->persist($customerToCreate);
                 $currentDelivery->setCustomer($customerToCreate);

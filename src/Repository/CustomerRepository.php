@@ -22,39 +22,6 @@ class CustomerRepository extends ServiceEntityRepository
     }
 
     /**
-     * Function that create a new customer according to a delivery related content
-     *
-     * @param [type] $array
-     * @return Customer
-     */
-    public function createCustomerFromArray($array)
-    {
-        $customerToCreate = new Customer();
-
-        $customerToCreate->setName($array['name']);
-        $customerToCreate->setAddress($array['address']);
-        $customerToCreate->setPhoneNumber($array['phoneNumber']);
-
-        return $customerToCreate;
-    }
-
-    /**
-     * Function that update customer's delivery related content
-     *
-     * @param Customer $customer
-     * @param [type] $array
-     * @return void
-     */
-    public function setCustomerFromArray(Customer $customer, $array)
-    {
-
-        $customer->setName($array['name']);
-        $customer->setAddress($array['address']);
-        $customer->setPhoneNumber($array['phoneNumber']);
-
-        return $customer;
-    }
-    /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
