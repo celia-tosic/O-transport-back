@@ -23,7 +23,7 @@ final class Version20220404090816 extends AbstractMigration
         $this->addSql('ALTER TABLE delivery ADD customer_id INT NOT NULL, ADD admin_id INT DEFAULT NULL, ADD driver_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC109395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (id)');
         $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC10642B8210 FOREIGN KEY (admin_id) REFERENCES user (id)');
-        $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC10C3423909 FOREIGN KEY (driver_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE delivery ADD CONSTRAINT FK_3781EC10C3423909 FOREIGN KEY (driver_id) REFERENCES user (id) ON DELETE SET NULL');
         $this->addSql('CREATE INDEX IDX_3781EC109395C3F3 ON delivery (customer_id)');
         $this->addSql('CREATE INDEX IDX_3781EC10642B8210 ON delivery (admin_id)');
         $this->addSql('CREATE INDEX IDX_3781EC10C3423909 ON delivery (driver_id)');
