@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Response\JsonErrorResponse;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 
 /**
  * 
@@ -21,10 +22,13 @@ class FollowingDeliveryController extends AbstractController
      * @Route("/{id}/deliveries", name="affected", methods="GET", requirements={"id"="\d+"})
      * @return Response
     */
-    public function showDeliveries(int $id , DeliveryRepository $deliveryRepository): Response {
-
-        $deliveryList = $deliveryRepository->findAllDeliveryToCompleteByDriver($id);
+    public function showDeliveries(int $id , DeliveryRepository $deliveryRepository, UserRepository $testUser, EquatableInterface $user): Response 
+    {
     
+        $deliveryList = $deliveryRepository->findAllDeliveryToCompleteByDriver($id);
+        // $userToCheck = $testUser->find($id);
+        // dd($user->isEqualTo($userToCheck));
+
         return $this->json($deliveryList, Response::HTTP_OK, [], ['groups'=>"api_driver_deliveries"]);
     }
 

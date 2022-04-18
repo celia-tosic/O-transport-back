@@ -100,7 +100,7 @@ class ManagingDeliveryController extends AbstractController
     {
         // On récupère le contenu de la requête en JSON et le décode en tableau
         $data = $request->toArray();
-
+        
         //On isole nos deux "parties" (objets) du tableau : delivery et customer
         $deliveryObject = $data["delivery"];
         $customerObject = $data["customer"];

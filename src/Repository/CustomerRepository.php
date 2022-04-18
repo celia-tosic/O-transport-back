@@ -21,6 +21,12 @@ class CustomerRepository extends ServiceEntityRepository
         parent::__construct($registry, Customer::class);
     }
 
+    /**
+     * Function that create a new customer according to a delivery related content
+     *
+     * @param [type] $array
+     * @return Customer
+     */
     public function createCustomerFromArray($array)
     {
         $customerToCreate = new Customer();
@@ -32,6 +38,13 @@ class CustomerRepository extends ServiceEntityRepository
         return $customerToCreate;
     }
 
+    /**
+     * Function that update customer's delivery related content
+     *
+     * @param Customer $customer
+     * @param [type] $array
+     * @return void
+     */
     public function setCustomerFromArray(Customer $customer, $array)
     {
 
