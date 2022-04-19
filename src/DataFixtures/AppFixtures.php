@@ -148,7 +148,7 @@ class AppFixtures extends Fixture
 
         // --- DELIVERIES ---
 
-        $nbDeliveries = 160;
+        $nbDeliveries = 20;
 
         $merchandises = [
             'sable', 'béton', 'gravier', 'bois', 'acier', 'aluminium'
