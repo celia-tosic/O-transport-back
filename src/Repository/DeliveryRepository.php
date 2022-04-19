@@ -31,10 +31,12 @@ class DeliveryRepository extends ServiceEntityRepository
         $entityManager = $this->getEntityManager(); 
 
         $query = $entityManager->createQuery(
-            'SELECT d, c
+            'SELECT d, c, u
             FROM App\Entity\Delivery d
             INNER JOIN d.customer c
-            WHERE d.status = 0'
+            LEFT JOIN d.driver u 
+            WHERE d.status = 0
+            ORDER BY d.driver'
         );
 
         return $query->getResult(); 
@@ -70,7 +72,8 @@ class DeliveryRepository extends ServiceEntityRepository
             'SELECT d, c
             FROM App\Entity\Delivery d
             INNER JOIN d.customer c
-            WHERE d.status = 2'
+            WHERE d.status = 2
+            ORDER BY d.updated_at DESC'
         );
 
         return $query->getResult(); 
