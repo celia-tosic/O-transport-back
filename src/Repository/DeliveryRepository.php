@@ -90,7 +90,8 @@ class DeliveryRepository extends ServiceEntityRepository
             'SELECT d 
             FROM App\Entity\Delivery d 
             WHERE d.driver = :id
-            AND (d.status = 1 OR d.status = 0)' 
+            AND (d.status = 1 OR d.status = 0)
+            ORDER BY d.status DESC' 
         )->setParameter('id', $id);
             
 
