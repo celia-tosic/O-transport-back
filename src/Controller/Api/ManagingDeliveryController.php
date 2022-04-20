@@ -137,7 +137,7 @@ class ManagingDeliveryController extends AbstractController
                 // Si il existe on récupère le customer existant et on met à jour le numéro de téléphone
                 // $updatePhoneNumber = $customerArray['phoneNumber'];
                 $customer = $customerRepository->find($test[0]->getId());
-
+                
                 // $customer->setPhoneNumber($updatePhoneNumber);
             } else {
                 // Si elle ne correspond pas, on créé un nouveau Customer
