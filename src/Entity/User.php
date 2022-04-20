@@ -84,12 +84,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $lastname;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"api_drivers_details", "api_drivers_delete"})
-     */
-    private $picture;
-
      /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"api_drivers_details", "api_drivers_delete"})
