@@ -30,7 +30,7 @@ Dépendances installées:
 
 ## Connexion de la base de données (Mise en prod)
 
-Dans un fichier .env.local (à créer) ajouter cette ligne pour donner l'accès à la bdd
+Dans un fichier .env.local (à créer) ajouter cette ligne pour donner l'accès à la base de données
 
 ```
 DATABASE_URL="mysql://otransport:otransport@127.0.0.1:3306/otransport?serverVersion=10.3.32-MariaDB&charset=utf8mb4"
