@@ -159,6 +159,12 @@ class ManagingDriverController extends AbstractController
             return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
+        //Si le chauffeur est en cours de livraison, on ne peut pas le supprimer
+        if ($user->getStatus() === 1 )
+        {
+            return JsonErrorResponse::sendError("Suppression impossible", 404);
+        }
+
         //On supprime l'utilisateur de la BDD
         $entityManager->remove($user);
         $entityManager->flush();
