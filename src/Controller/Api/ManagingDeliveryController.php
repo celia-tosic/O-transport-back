@@ -149,22 +149,23 @@ class ManagingDeliveryController extends AbstractController
 
         // On vérifie la validité des données gràce au Validator Interface 
         // On fabrique un tableau d'erreur vide
-        $messages = [];
+        // $messages = [];
         // On vérifie si il y a des erreurs dans l'entité Delivery
-        $errorsD = $validator->validate($delivery);
+        $errorsDelivery = $validator->validate($delivery);
+        $errorsCustomer = $validator->validate($customer);
+        // $errorsCustomer = $validator->validate($customer);
         // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
-        foreach ($errorsD as $violation) {
-            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
+        if ( (count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0) )
+        {   
+            
+            return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer, 404);
         }
         // On fait pareil pour l'entité Customer
-        $errorsC = $validator->validate($customer);
-        foreach ($errorsC as $violation) {
-            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-        }
-        // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY (422)
-        if ($messages != []) {
-            return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
+        // $errorsCustomer = $validator->validate($customer);
+        // if (count($errorsCustomer) > 0)
+        // {            
+        //     return JsonErrorResponse::sendValidatorErrors($errorsCustomer, 404);
+        // }
 
         //on affecte le customer récupéré/créé à la livraison
         $delivery->setCustomer($customer);

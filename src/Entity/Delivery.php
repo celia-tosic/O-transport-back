@@ -41,11 +41,11 @@ class Delivery
      * @ORM\Column(type="float")
      * @Groups("api_driver_deliveries")      
      * @Groups({"api_deliveries_list", "api_deliveries_details","api_delivery_deleted"})
-     * @Assert\NotBlank(message="Le nom de la marchandise ne peut être vide")
+     * @Assert\NotBlank(message="Le type de marchandise ne peut être vide")
      * @Assert\Range(
-     *      min = 0,
+     *      min = 1,
      *      max = 20,
-     *      notInRangeMessage = "Le volume doit être compris entre 0 et 20 m³",
+     *      notInRangeMessage = "Le volume doit être compris entre 1 et 20 m³",
      * )
      */
     private $volume;
