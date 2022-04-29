@@ -43,9 +43,8 @@ class ManagingDeliveryController extends AbstractController
      */
     public function shippingList(DeliveryRepository $deliveryRepository): Response
     {
-        // préparer les données
         $shippingList = $deliveryRepository->findShippingDeliveries();
-        //La méthode json va "serializer" les données, c'est à dire les transformer en JSON.
+        
         return $this->json($shippingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
@@ -56,9 +55,8 @@ class ManagingDeliveryController extends AbstractController
      */
     public function completedList(DeliveryRepository $deliveryRepository): Response
     {
-        // préparer les données
         $completedList = $deliveryRepository->findCompletedDeliveries();
-        //La méthode json va "serializer" les données, c'est à dire les transformer en JSON.
+
         return $this->json($completedList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
@@ -71,7 +69,6 @@ class ManagingDeliveryController extends AbstractController
     {
         $currentDelivery = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
-        // $decodedDriverId = $serializer->deserialize($jsonContent, User::class, 'json');
 
         // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
 
@@ -81,7 +78,7 @@ class ManagingDeliveryController extends AbstractController
 
         // On décode le json reçu pour ne prendre que l'ID envoyé 
         $decodedDriverId = json_decode($jsonContent, true);
-        // dd($decodedDriverId);
+
         // On récupère l'objet User correspondant
         $userToAffect = $userRepository->find($decodedDriverId);
         // On l'affect à la livraison
@@ -146,26 +143,15 @@ class ManagingDeliveryController extends AbstractController
             }
         }
 
-
-        // On vérifie la validité des données gràce au Validator Interface 
-        // On fabrique un tableau d'erreur vide
-        // $messages = [];
-        // On vérifie si il y a des erreurs dans l'entité Delivery
+        // On vérifie la validité des données gràce au Validator Interface. Si il y a des erreurs alors on les retourne
         $errorsDelivery = $validator->validate($delivery);
         $errorsCustomer = $validator->validate($customer);
-        // $errorsCustomer = $validator->validate($customer);
-        // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
+        
         if ( (count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0) )
         {   
             
-            return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer, 404);
+            return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer);
         }
-        // On fait pareil pour l'entité Customer
-        // $errorsCustomer = $validator->validate($customer);
-        // if (count($errorsCustomer) > 0)
-        // {            
-        //     return JsonErrorResponse::sendValidatorErrors($errorsCustomer, 404);
-        // }
 
         //on affecte le customer récupéré/créé à la livraison
         $delivery->setCustomer($customer);
@@ -174,7 +160,7 @@ class ManagingDeliveryController extends AbstractController
         $entityManager->flush();
 
         // On retourne la réponse adaptée (201 + Location: URL de la ressource)
-        return $this->json($delivery, Response::HTTP_CREATED, [], ['groups' => 'api_deliveries_details']);
+        return $this->json($delivery, Response::HTTP_CREATED, [], ['groups' => "api_deliveries_details"]);
     }
 
     /**
@@ -304,6 +290,5 @@ class ManagingDeliveryController extends AbstractController
         $entityManager->flush();
 
         return $this->json($deliveryToDelete, Response::HTTP_OK, [], ['groups' => "api_delivery_deleted"]);
-        //return $this->json("Work", Response::HTTP_OK, [])
     }
 }
