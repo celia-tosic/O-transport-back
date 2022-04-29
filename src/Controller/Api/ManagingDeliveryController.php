@@ -186,10 +186,9 @@ class ManagingDeliveryController extends AbstractController
         // On récupère le contenu en JSON
         $jsonContent = $request->getContent();
 
-        // Ici nous traitons la méthode PUT de la requête
         // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
         $decode = json_decode($jsonContent, true);
-        // $decode = $decode['delivery'];
+    
         $customerToUpdate = $decode['customer'];
         $entityManager = $doctrine->getManager();
 
@@ -245,29 +244,22 @@ class ManagingDeliveryController extends AbstractController
         }
       
         // Ici on test la validité des inputs modifiés
-        // On fabrique un tableau d'erreur vide
-        $messages = [];
-        // On vérifie si il y a des erreurs dans l'entité Delivery
+        // On vérifie si il y a des erreurs dans les deux entités
         $updateErrorsOnDelivery = $validator->validate($currentDelivery);
         $updateErrorsOnCustomer = $validator->validate($currentDelivery->getCustomer());
-        // On boucle sur chaque input pour vérifier la présense d'erreur et on les intègre dans le tableaux d'erreur
-        foreach ($updateErrorsOnDelivery as $violation) {
-            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-        }
-        foreach ($updateErrorsOnCustomer as $violation) {
-            $messages[$violation->getPropertyPath()][] = $violation->getMessage();
-        }
-        // On vérifie que le tableau soit vide sinon on renvoi une réponse HTTP_UNPROCESSABLE_ENTITY (422)
-        if ($messages != []) {
-            return $this->json($messages, Response::HTTP_UNPROCESSABLE_ENTITY);
+       
+        if ( (count($updateErrorsOnDelivery) > 0  && count($updateErrorsOnCustomer) > 0) || (count($updateErrorsOnDelivery) > 0  || count($updateErrorsOnCustomer) > 0) )
+        {   
+            return JsonErrorResponse::sendValidatorErrorsOnManyEntities($updateErrorsOnDelivery, $updateErrorsOnCustomer);
+        
         } else {
+        
             // Dans le cas où il n'y a pas d'erreur, on modifie la date de mise à jour
             $currentDelivery->setUpdatedAt(new DateTime());
+            $entityManager->flush();
+            return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
         }
-
-        $entityManager->flush();
-
-        return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
+ 
     }
 
     /**
