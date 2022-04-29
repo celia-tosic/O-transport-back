@@ -29,7 +29,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
-     * @Assert\NotBlank(message="L'email est obligatoire", groups={"modification"})
+     * @Assert\NotBlank(message="L'email est obligatoire", groups={"modification", "modificationIfPasswordExist"} )
      * @Assert\Email
      */
     private $email;
@@ -48,7 +48,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *      min = 5,
      *      max = 50,
      *      minMessage = "Le mot de passe doit faire au minimum {{ limit }} caractères",
-     *      maxMessage = "Le mot de passe doit faire au maximum {{ limit }} caractères"
+     *      maxMessage = "Le mot de passe doit faire au maximum {{ limit }} caractères",
+     *      groups={"modificationIfPasswordExist"}
      * )
      */
     private $password;
@@ -64,7 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *      max = 50,
      *      minMessage = "Le prénom doit faire au minimum {{ limit }} caractères",
      *      maxMessage = "Le prénom doit faire au maximum {{ limit }} caractères",
-     *      groups={"modification"}
+     *      groups={"modification", "modificationIfPasswordExist"}
      * )
      */
     private $firstname;
@@ -81,7 +82,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *      max = 50,
      *      minMessage = "Le nom doit faire au minimum {{ limit }} caractères",
      *      maxMessage = "Le nom doit faire au maximum {{ limit }} caractères",
-     *      groups={"modification"}
+     *      groups={"modification", "modificationIfPasswordExist"}
      * )
      */
     private $lastname;
@@ -90,7 +91,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
-     * @Assert\NotBlank(message="Le numéro de téléphone est obligatoire", groups={"modification"})
+     * @Assert\NotBlank(message="Le numéro de téléphone est obligatoire", groups={"modification", "modificationIfPasswordExist"})
      */
     private $phoneNumber;
 

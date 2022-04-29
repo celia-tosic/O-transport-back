@@ -126,7 +126,7 @@ class ManagingDriverController extends AbstractController
 
         //Si le mot de passe existe
         if (isset($userObject->password)) {
-            $errors = $validator->validate($user);
+            $errors = $validator->validate($user, null, ["modificationIfPasswordExist"]);
 
             if (count($errors) > 0) {
                 return JsonErrorResponse::sendValidatorErrors($errors, 404);
