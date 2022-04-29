@@ -111,8 +111,7 @@ class ManagingDriverController extends AbstractController
         $user = $userRepository->find($id);
 
         //On gèrer le cas où l'utilisateur n'existe pas en BDD
-        if (is_null($user))
-        {
+        if (is_null($user)) {
             return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
@@ -122,14 +121,26 @@ class ManagingDriverController extends AbstractController
         // On modifie l'utilisateur avec les données modifiées
         $serializer->deserialize($requestContentInJson, User::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $user]);
         
-        // Pour vérifier si on nous a envoyé un mot de passe, on désérialise le json et on vérifie si un champ mot de passe existe 
+        // Pour vérifier si on nous a envoyé un mot de passe, on désérialise le json et on vérifie si un champ mot de passe existe
         $userObject = json_decode($requestContentInJson);
 
-        
-        if (isset($userObject->password))
-        {
+        //Si le mot de passe existe
+        if (isset($userObject->password)) {
+            $errors = $validator->validate($user);
+
+            if (count($errors) > 0) {
+                return JsonErrorResponse::sendValidatorErrors($errors, 404);
+            }
+
             $hashedPassword = $hasher->hashPassword($user, $userObject->password);
             $user->setPassword($hashedPassword);
+    
+        } else {
+            $errors = $validator->validate($user, null, ['modification']);
+
+            if (count($errors) > 0) {
+                return JsonErrorResponse::sendValidatorErrors($errors, 404);
+            }
         }
 
         // On enregistre l'utilisateur avec les modifications en BDD

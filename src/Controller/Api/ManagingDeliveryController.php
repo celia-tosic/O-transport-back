@@ -259,7 +259,6 @@ class ManagingDeliveryController extends AbstractController
             $entityManager->flush();
             return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
         }
- 
     }
 
     /**
