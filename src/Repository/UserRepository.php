@@ -25,12 +25,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
-    // public function isEqualTo(UserInterface $user)
-    // {
-    //     if(!$user instanceof User) {
-    //         return false;
-    //     }
-    // }
 
     /**
      * get all the drivers
@@ -42,10 +36,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $query = $entityManager->createQuery(
             'SELECT u
             FROM App\Entity\User u
-            WHERE u.roles LIKE :role'
+            WHERE u.roles LIKE :role
+            ORDER BY u.status'
         )->setParameter('role', '%ROLE_DRIVER%');
 
-        // returns an array of Movie objects
         return $query->getResult();
     }
 

@@ -13,19 +13,19 @@ class AuthenticationSuccessListener
  */
     public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event)
     {
-        $data = $event->getData();
-        $user = $event->getUser();
+    //     $data = $event->getData();
+    //     $user = $event->getUser();
 
-        if (!$user instanceof User) {
-            return;
-        }
+    //     if (!$user instanceof User) {
+    //         return;
+    //     }
 
-        $data['user'] = array(
-            'id' => $user->getId(),
-            'firstname' => $user->getFirstName(),
-            'roles' => $user->getRoles(),
-        );
+    //     $data['user'] = array(
+    //         'id' => $user->getId(),
+    //         'firstname' => $user->getFirstName(),
+    //         'roles' => $user->getRoles(),
+    //     );
 
-        $event->setData($data);
+    //     $event->setData($data);
     }
 }

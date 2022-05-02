@@ -23,9 +23,27 @@ class JsonErrorResponse extends Response
     {
         $messages = [];
 
+        
         foreach ($errors as $violation) {
             $messages[$violation->getPropertyPath()] = $violation->getMessage();
         }
+
+        return new JsonResponse($messages);
+    }
+
+    public static function sendValidatorErrorsOnManyEntities($errorsOnfirstEntity, $errorsOnSecondEntity )
+    {
+        $messages = [];
+
+        
+        foreach ($errorsOnfirstEntity as $violation) {
+            $messages[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+
+        foreach ($errorsOnSecondEntity as $violation) {
+            $messages[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+
         return new JsonResponse($messages);
     }
 

@@ -82,7 +82,7 @@ class DeliveryRepository extends ServiceEntityRepository
 
      * return all deliveries for one driver
      */
-    public function findAllDeliveryToCompleteByDriver($id) {
+    public function findAllDeliveriesByDriver($id) {
 
         $entityManager = $this->getEntityManager(); 
 

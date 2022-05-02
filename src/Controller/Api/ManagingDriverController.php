@@ -28,10 +28,11 @@ class ManagingDriverController extends AbstractController
      */
     public function list(UserRepository $userRepository): Response
     {
-        // On prépare les données : On récupère les données depuis le repository
+        // Data preparation : we get the data from the repository
+        // custom request in DQL (cf. UserRepository.php)
         $driversList = $userRepository->findAllDrivers();
         
-        //La méthode json va "serializer" les données, c'est à dire les transformer en JSON.
+        //json method json "serializes" the data --> transform to JSON
         return $this->json($driversList, Response::HTTP_OK, [], ['groups' => "api_drivers_list"]);
     }
 
@@ -44,16 +45,16 @@ class ManagingDriverController extends AbstractController
      */
     public function read(int $id, UserRepository $userRepository): Response
     {
-        // On prépare les données : on récupère les données de l'utilisateur en question
         $user = $userRepository->find($id);
 
-        //On gère le cas si l'utilisateur n'existe pas
+        //if the user doesn't exist ...
         if (is_null($user))
         {
+            //... we send an error message
             return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
-        //On retourne le résultat en JSON
+        // else we send driver's infos
         return $this->json($user, Response::HTTP_OK, [], ['groups' => "api_drivers_details"]);
     }
 
@@ -66,35 +67,37 @@ class ManagingDriverController extends AbstractController
     public function create(ValidatorInterface $validator, Request $request, SerializerInterface $serializer, UserPasswordHasherInterface $hasher, ManagerRegistry $doctrine)
     {
 
-        // On récupère la réponse en JSON
+        // we get the response in JSON
         $requestContentInJson = $request->getContent();
 
-        // On transforme le JSON en objet (on va donc le deserializer)
+        // we transform the JSON in object (deserialize)
         $user = $serializer->deserialize($requestContentInJson, User::class, 'json');
         
-        // On attribue un role Driver et un statut 0(=disponible) par défaut
+        // we set a driver role and a status to 0 (=available) by default
         $user->setRoles(["ROLE_DRIVER"]);   
         $user->setStatus(0);  
 
-        // Validation des données avec le validator (@Assert dans les entités)
+        // data validation with validator (@Assert in entities)
         $errors = $validator->validate($user);
 
         if (count($errors) > 0)
-        {            
+        {   
+            // if some erros --> we send errors  
             return JsonErrorResponse::sendValidatorErrors($errors, 404);
         }
         
-        // On hash le mot de passe 
+        // hash password 
         $hashedPassword = $hasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
 
         $entityManager = $doctrine->getManager();
-        //doctrine prend en charge l'utilisateur créé...
+       
+        // stockage in DB
         $entityManager->persist($user);
-        //...et l'enregistre en base de données 
+       
         $entityManager->flush();
         
-        //On retourne au format JSON l'utilisateur créé. 
+        // send status 201 created if it's ok 
         return $this->json('', 201);
     }
 
@@ -107,32 +110,45 @@ class ManagingDriverController extends AbstractController
     public function update(ValidatorInterface $validator, int $id, ManagerRegistry $doctrine,  UserPasswordHasherInterface $hasher, Request $request, UserRepository $userRepository, SerializerInterface $serializer): Response
     {
 
-        // On récupère l'utilisateur dans la BDD
         $user = $userRepository->find($id);
 
-        //On gèrer le cas où l'utilisateur n'existe pas en BDD
-        if (is_null($user))
-        {
+        if (is_null($user)) {
             return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
-        // On récupère les données modifiées depuis la requête
+        // get modified data from the request
         $requestContentInJson = $request->getContent();
        
-        // On modifie l'utilisateur avec les données modifiées
+        // we apply the modifications 
         $serializer->deserialize($requestContentInJson, User::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $user]);
         
-        // Pour vérifier si on nous a envoyé un mot de passe, on désérialise le json et on vérifie si un champ mot de passe existe 
+        // To verify if there is a new password, we deserialize the json and we verify if the password exists 
         $userObject = json_decode($requestContentInJson);
 
-        
-        if (isset($userObject->password))
-        {
+        //if the password exists...
+        if (isset($userObject->password)) {
+
+            // ... we virify the data with the group "modificationIfPasswordExist"
+            $errors = $validator->validate($user, null, ["modificationIfPasswordExist"]);
+
+            if (count($errors) > 0) {
+                return JsonErrorResponse::sendValidatorErrors($errors, 404);
+            }
+
+            //if it's ok, we hash the password
             $hashedPassword = $hasher->hashPassword($user, $userObject->password);
             $user->setPassword($hashedPassword);
+    
+        // if the password doesn't exist, we virify the data with the group "modification"
+
+        } else {
+            $errors = $validator->validate($user, null, ['modification']);
+
+            if (count($errors) > 0) {
+                return JsonErrorResponse::sendValidatorErrors($errors, 404);
+            }
         }
 
-        // On enregistre l'utilisateur avec les modifications en BDD
         $entityManager = $doctrine->getManager();
         $entityManager->flush();
 
@@ -148,24 +164,22 @@ class ManagingDriverController extends AbstractController
      */
     public function delete(int $id, UserRepository $userRepository, ManagerRegistry $doctrine): Response
     {
-        // On prépare les données
         $user = $userRepository->find($id);
 
         $entityManager =$doctrine->getManager();
 
-        //On gère le cas où l'utilisateur n'existe pas 
         if (is_null($user))
         {
             return JsonErrorResponse::sendError("Cet utilisateur est inconnu", 404);
         }
 
-        //Si le chauffeur est en cours de livraison, on ne peut pas le supprimer
+        //If the driver is delivering (status 1, not available), we cannot delete him
         if ($user->getStatus() === 1 )
         {
             return JsonErrorResponse::sendError("Suppression impossible", 404);
         }
 
-        //On supprime l'utilisateur de la BDD
+        //We remove the user of the DB
         $entityManager->remove($user);
         $entityManager->flush();
 
