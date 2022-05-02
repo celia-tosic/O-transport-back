@@ -207,6 +207,8 @@ class ManagingDeliveryController extends AbstractController
         $decode = json_decode($jsonContent, true);
     
         $customerToUpdate = $decode['customer'];
+        $deliveryToUpdate = $decode['delivery'];
+        dd($deliveryToUpdate);
         
         $entityManager = $doctrine->getManager();
 
