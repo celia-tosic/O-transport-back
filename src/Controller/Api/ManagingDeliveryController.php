@@ -31,9 +31,11 @@ class ManagingDeliveryController extends AbstractController
      */
     public function pendingList(DeliveryRepository $deliveryRepository): Response
     {
-        // préparer les données
+        // Data preparation : we get the data from the repository
+        // custom request in DQL (cf. DeliveryRepository.php)
         $pendingList = $deliveryRepository->findPendingDeliveries();
-        //La méthode json va "serializer" les données, c'est à dire les transformer en JSON.
+        
+        //json method json "serializes" the data --> transform to JSON
         return $this->json($pendingList, Response::HTTP_OK, [], ['groups' => "api_deliveries_list"]);
     }
 
@@ -61,7 +63,7 @@ class ManagingDeliveryController extends AbstractController
     }
 
     /**
-     * Update the driver for a specific delivery
+     * Affect a driver to a specific delivery
      *
      * @Route("/{id}/affect", name="affect_driver", requirements={"id"="\d+"}, methods="PUT")
      */
@@ -70,18 +72,18 @@ class ManagingDeliveryController extends AbstractController
         $currentDelivery = $deliveryRepository->find($id);
         $jsonContent = $request->getContent();
 
-        // On vérifie que l'identifiant envoyé existe en tant que livraison, si non, on renvoit un message d'erreur
-
+        // If the delivery doesn't exist
         if (is_null($currentDelivery)) {
             return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
 
-        // On décode le json reçu pour ne prendre que l'ID envoyé 
+        // we decode the Json response  
         $decodedDriverId = json_decode($jsonContent, true);
 
-        // On récupère l'objet User correspondant
+        // we get the user object
         $userToAffect = $userRepository->find($decodedDriverId);
-        // On l'affect à la livraison
+
+        // we affect the driver to the delivery
         $currentDelivery->setDriver($userToAffect);
 
         $entityManager = $doctrine->getManager();
@@ -94,56 +96,73 @@ class ManagingDeliveryController extends AbstractController
      * Post route to create a new delivery + customer
      * @Route("/create", name="create", methods={"POST"})
      */
-    public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function create(CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
-        // On récupère le contenu de la requête en JSON et le décode en tableau
+        // we get the request's content in JSON and we decode it in array
         $data = $request->toArray();
         
-        //On isole nos deux "parties" (objets) du tableau : delivery et customer
+        //we isolate the two parts (objects) of the table : delivery and customer
         $deliveryObject = $data["delivery"];
         $customerObject = $data["customer"];
 
-        //On transforme nos 2 objets en json pour qu'ils puissent être ensuite déserializé. 
+        //we transform the 2 objects in JSON to be able to deserialize them with the deserializer of Symfony. 
         $deliveryString = $serializer->serialize($deliveryObject, 'json');
         $customerString = $serializer->serialize($customerObject, 'json');
 
-        // On prépare la manipulation des données
         $entityManager = $doctrine->getManager();
 
-        //On deserialise et on créé un nouvel objet livraison
+        //we deserialize and we create a new object Delivery
         $delivery = $serializer->deserialize($deliveryString, Delivery::class, 'json');
-        // On complète les infos qui ne sont pas dans le formulaire
+
+        // we set some infos by default
         $delivery->setCreatedAt(new DateTime());
         $delivery->setUpdatedAt(null);
-        //TODO il faut que l'admin corresponde à l'utilisateur créant la livraison (En session)
-        // $delivery->setAdmin($userRepository->find(3));
         $delivery->setStatus(0);
+        //TODO the admin must correspond to the user creating the delivery 
 
-        // On fabrique les tests en testant de récupérer les données dans la table Customer
-        $test = $customerRepository->findByName($customerObject['name']);
-        $test2 = $customerRepository->findByAddress($customerObject['address']);
-        // On vérifie d'abord si le nom existe en BDD
+        // We verify if the client is already in the DB or not 
+        $customerFoundByName = $customerRepository->findByName($customerObject['name']);        
 
-        if (!$test) {
-            // si il n'existe pas, on créé un nouveau customer
+        //If the client name doesn't exist... 
+        if (!$customerFoundByName) {
+            //... then we create a new customer
             $customer = $serializer->deserialize($customerString, Customer::class, 'json');
-            $entityManager->persist($customer);
+
         } else {
-            // si le nom existe, on verifie si l'adresse correspond
-            if ($test === $test2) {
-                // Si il existe on récupère le customer existant et on met à jour le numéro de téléphone
-                // $updatePhoneNumber = $customerArray['phoneNumber'];
-                $customer = $customerRepository->find($test[0]->getId());
-                
-                // $customer->setPhoneNumber($updatePhoneNumber);
-            } else {
-                // Si elle ne correspond pas, on créé un nouveau Customer
-                $customer = $serializer->deserialize($customerString, Customer::class, 'json');
-                $entityManager->persist($customer);
+            // if the name exists, we verify if there is a client with the same address
+            foreach ($customerFoundByName as $customer) {
+
+                if ($customer->getAddress() === $customerObject['address']) {
+
+                    $updatePhoneNumber = $customerObject['phoneNumber'];
+                    $customer->setPhoneNumber($updatePhoneNumber);
+                    $delivery->setCustomer($customer);
+
+                    // data validation with validator (@Assert in entities)
+                    $errorsDelivery = $validator->validate($delivery);
+                    $errorsCustomer = $validator->validate($customer);
+                    
+                    if ( (count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0) )
+                    {   
+                        
+                        return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer);
+                    }
+
+                    $entityManager->persist($delivery);
+                    $entityManager->flush();
+
+                    $entityManager->persist($customer);
+
+                    return $this->json($delivery, Response::HTTP_CREATED, [], ['groups' => "api_deliveries_details"]);
+
+                } else {
+                    // If there is no client with the same address, then we create a new customer
+                    $customer = $serializer->deserialize($customerString, Customer::class, 'json');
+                }
             }
         }
 
-        // On vérifie la validité des données gràce au Validator Interface. Si il y a des erreurs alors on les retourne
+        // data validation with validator (@Assert in entities)
         $errorsDelivery = $validator->validate($delivery);
         $errorsCustomer = $validator->validate($customer);
         
@@ -153,18 +172,17 @@ class ManagingDeliveryController extends AbstractController
             return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer);
         }
 
-        //on affecte le customer récupéré/créé à la livraison
+        //we affect the customer to the delivery and we create the customer and the delivery
         $delivery->setCustomer($customer);
+        $entityManager->persist($customer);
         $entityManager->persist($delivery);
-
         $entityManager->flush();
 
-        // On retourne la réponse adaptée (201 + Location: URL de la ressource)
         return $this->json($delivery, Response::HTTP_CREATED, [], ['groups' => "api_deliveries_details"]);
     }
 
     /**
-     * Get content and route to read an existing delivery
+     * Get a delivery details
      * @Route("/{id}", name="read", requirements={"id"="\d+"}, methods="GET")
      */
     public function read(int $id, DeliveryRepository $deliveryRepository): Response
@@ -175,24 +193,24 @@ class ManagingDeliveryController extends AbstractController
     }
 
     /**
-     * Get content and route to POST update an existing delivery
+     * Update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods="PUT")
      */
     public function update(int $id, CustomerRepository $customerRepository, ServiceDeliveryTestsContent $deliveryCheck,DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
-        // Permet de sortir les informations en GET correspondant à l'id de la livraison. 
         $currentDelivery = $deliveryRepository->find($id);
 
-        // On récupère le contenu en JSON
+        // we get the content of the request in JSON
         $jsonContent = $request->getContent();
 
-        // On décode le contenu pour pouvoir créer nos entités à partir du tableau 
+        // we decode the content  
         $decode = json_decode($jsonContent, true);
     
         $customerToUpdate = $decode['customer'];
+        
         $entityManager = $doctrine->getManager();
 
-        // On vérifie si chaque champs à évoluer, si oui on l'update
+        // On vérifie si chaque champs à évolué, si oui on l'update
         $deliveryCheck->decodeDeliveryAndUpdate($currentDelivery, $decode);
 
         // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
@@ -272,7 +290,7 @@ class ManagingDeliveryController extends AbstractController
         $deliveryToDelete = $deliveryRepository->find($id);
         $entityManager = $doctrine->getManager();
 
-        //On gère le cas où la livraison n'existe pas 
+        //If the delivery doesn't exist
         if (is_null($deliveryToDelete)) {
             return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
