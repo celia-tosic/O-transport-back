@@ -46,7 +46,7 @@ class JWTCreatedListener
 
         $event->setData($data);
 
-        $header        = $event->getHeader();
+        $header = $event->getHeader();
         $header['cty'] = 'JWT';
 
         $event->setHeader($header);
