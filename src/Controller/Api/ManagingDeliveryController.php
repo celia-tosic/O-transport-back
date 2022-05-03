@@ -16,7 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Response\JsonErrorResponse;
-use App\Service\DeliveryTestsContent as ServiceDeliveryTestsContent;
 
 /**
  * @Route("/api/admin/deliveries", name="api_deliveries_")
@@ -77,7 +76,7 @@ class ManagingDeliveryController extends AbstractController
             return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
         }
 
-        // we decode the Json response  
+        // we decode the Json response
         $decodedDriverId = json_decode($jsonContent, true);
 
         // we get the user object
@@ -105,7 +104,7 @@ class ManagingDeliveryController extends AbstractController
         $deliveryObject = $data["delivery"];
         $customerObject = $data["customer"];
 
-        //we transform the 2 objects in JSON to be able to deserialize them with the deserializer of Symfony. 
+        //we transform the 2 objects in JSON to be able to deserialize them with the deserializer of Symfony.
         $deliveryString = $serializer->serialize($deliveryObject, 'json');
         $customerString = $serializer->serialize($customerObject, 'json');
 
@@ -118,33 +117,28 @@ class ManagingDeliveryController extends AbstractController
         $delivery->setCreatedAt(new DateTime());
         $delivery->setUpdatedAt(null);
         $delivery->setStatus(0);
-        //TODO the admin must correspond to the user creating the delivery 
 
-        // We verify if the client is already in the DB or not 
-        $customerFoundByName = $customerRepository->findByName($customerObject['name']);        
+        //! Test if the customer exist or not
+        // We verify if the client is already in the DB or not
+        $customerFoundByName = $customerRepository->findByName($customerObject['name']);
 
-        //If the client name doesn't exist... 
+        //If the client name doesn't exist...
         if (!$customerFoundByName) {
             //... then we create a new customer
             $customer = $serializer->deserialize($customerString, Customer::class, 'json');
-
         } else {
             // if the name exists, we verify if there is a client with the same address
             foreach ($customerFoundByName as $customer) {
-
                 if ($customer->getAddress() === $customerObject['address']) {
-
                     $updatePhoneNumber = $customerObject['phoneNumber'];
                     $customer->setPhoneNumber($updatePhoneNumber);
                     $delivery->setCustomer($customer);
 
-                    // data validation with validator (@Assert in entities)
+                    //! Data Validation
                     $errorsDelivery = $validator->validate($delivery);
                     $errorsCustomer = $validator->validate($customer);
                     
-                    if ( (count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0) )
-                    {   
-                        
+                    if ((count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0)) {
                         return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer);
                     }
 
@@ -154,7 +148,6 @@ class ManagingDeliveryController extends AbstractController
                     $entityManager->persist($customer);
 
                     return $this->json($delivery, Response::HTTP_CREATED, [], ['groups' => "api_deliveries_details"]);
-
                 } else {
                     // If there is no client with the same address, then we create a new customer
                     $customer = $serializer->deserialize($customerString, Customer::class, 'json');
@@ -162,13 +155,11 @@ class ManagingDeliveryController extends AbstractController
             }
         }
 
-        // data validation with validator (@Assert in entities)
+        //! Data Validation
         $errorsDelivery = $validator->validate($delivery);
         $errorsCustomer = $validator->validate($customer);
         
-        if ( (count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0) )
-        {   
-            
+        if ((count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0)) {
             return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer);
         }
 
@@ -196,85 +187,86 @@ class ManagingDeliveryController extends AbstractController
      * Update an existing delivery
      * @Route("/{id}", name="update", requirements={"id"="\d+"}, methods="PUT")
      */
-    public function update(int $id, CustomerRepository $customerRepository, ServiceDeliveryTestsContent $deliveryCheck,DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function update(int $id, CustomerRepository $customerRepository, SerializerInterface $serializer, DeliveryRepository $deliveryRepository, Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         $currentDelivery = $deliveryRepository->find($id);
-
-        // we get the content of the request in JSON
-        $jsonContent = $request->getContent();
-
-        // we decode the content  
-        $decode = json_decode($jsonContent, true);
+        
+        // we get the request's content in JSON and we decode it in array
+        $data = $request->toArray();
     
-        $customerToUpdate = $decode['customer'];
-        $deliveryToUpdate = $decode['delivery'];
-        dd($deliveryToUpdate);
+        //we isolate the data from the front about the customer
+        $customerObject= $data['customer'];
+
+        //we serialize it in order to use the deserializer
+        $customerString = $serializer->serialize($customerObject, 'json');
         
         $entityManager = $doctrine->getManager();
 
-        // On vérifie si chaque champs à évolué, si oui on l'update
-        $deliveryCheck->decodeDeliveryAndUpdate($currentDelivery, $decode);
-
-        // On vérifie si le client de la livraison est différent de l'input renvoyé par le front
-        if ($currentDelivery->getCustomer()->getName() !== $customerToUpdate['name']) {
+        // we update the delivery (merchandise, volume, comment) (cf.DeliveryTestContent.php)
+        $currentDelivery->setMerchandise($data['merchandise']);
+        $currentDelivery->setVolume($data['volume']);
+        $currentDelivery->setComment($data['comment']);
           
+        //! Test if the customer exist or not
+        // we verify if the new customer is already in the DB (if he exists or not)
+        $customerInDataBase = $customerRepository->findByName($customerObject['name']);
 
-            // pour vérifier si le nouveau client existe, on teste de requêter son nom dans le repo Customer 
-            $existingCustomer = $customerRepository->findOneByName($customerToUpdate['name']);
-            // Si il n'existe pas
-            if (empty($existingCustomer)) {
+        // if he is not already in the DB...
+        if (!$customerInDataBase) {
 
-                $testIfMoreThanOnce = $deliveryCheck->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
+            // ... we create a new customer and we affect it to the delivery
+            $customer = $serializer->deserialize($customerString, Customer::class, 'json');
 
-                if ($testIfMoreThanOnce == false) {
+            $entityManager->persist($customer);
+            $currentDelivery->setCustomer($customer);
+
+        } else {
+                
+            //if the address of the customer is the same as the new address...
+            foreach ($customerInDataBase as $customer) {
+                if ($customer->getAddress() == $customerObject['address']) {
+
+                    // we update the phone number and we replace the customer by the found one
+                    $updatedPhoneNumber = $customerObject['phoneNumber'];
+                    $customer->setPhoneNumber($updatedPhoneNumber);
+                    $entityManager->persist($customer);
+                    $currentDelivery->setCustomer($customer);
+
+                    //! Data Validation
+                    $errorsDelivery = $validator->validate($currentDelivery);
+                    $errorsCustomer = $validator->validate($customer);
                     
-                    $deliveryCheck->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
+                    if ((count($errorsDelivery) > 0  && count($errorsCustomer) > 0) || (count($errorsDelivery) > 0  || count($errorsCustomer) > 0)) {
+                        return JsonErrorResponse::sendValidatorErrorsOnManyEntities($errorsDelivery, $errorsCustomer);
+                    }
+
+                    $currentDelivery->setUpdatedAt(new DateTime());
+                    $entityManager->persist($currentDelivery);
+                    $entityManager->flush();
+
+                    return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
 
                 } else {
-                    // Si le nom du client renseigné n'existe pas, vérifie si il a déjà fait des livraisons. 
-                    $customerToCreate = $deliveryCheck->createCustomerFromArray($customerToUpdate);
 
-                    $entityManager->persist($customerToCreate);
-                    $currentDelivery->setCustomer($customerToCreate);
+                    //else we create a new customer
+                    $customer = $serializer->deserialize($customerString, Customer::class, 'json');
+
+                    $entityManager->persist($customer);
+                    $currentDelivery->setCustomer($customer);
                 }
-            } else {
-                
-                // Sinon on remplace le customer actuel par celui que nous avons trouvé du même nom. 
-                $currentDelivery->setCustomer($existingCustomer);
             }
-        }
-        if ($currentDelivery->getCustomer()->getAddress() !== $customerToUpdate['address']) {
-
-            $testIfMoreThanOnce = $deliveryCheck->deliveriesRequestedMoreThanOnce($currentDelivery->getCustomer());
-
-            if ($testIfMoreThanOnce == false) {
-
-                $deliveryCheck->setCustomerFromArray($currentDelivery->getCustomer(), $customerToUpdate);
-                
-            } else {
-                // $customerToCreate = new Customer();
-                $customerToCreate = $deliveryCheck->createCustomerFromArray($customerToUpdate);
-
-                $entityManager->persist($customerToCreate);
-                $currentDelivery->setCustomer($customerToCreate);
-            }
-        }
-        if ($currentDelivery->getCustomer()->getPhoneNumber() !== $customerToUpdate['phoneNumber']) {
-            $currentDelivery->getCustomer()->setPhoneNumber($customerToUpdate['phoneNumber']);
         }
       
-        // Ici on test la validité des inputs modifiés
-        // On vérifie si il y a des erreurs dans les deux entités
+        //! data validation with validator
         $updateErrorsOnDelivery = $validator->validate($currentDelivery);
         $updateErrorsOnCustomer = $validator->validate($currentDelivery->getCustomer());
        
-        if ( (count($updateErrorsOnDelivery) > 0  && count($updateErrorsOnCustomer) > 0) || (count($updateErrorsOnDelivery) > 0  || count($updateErrorsOnCustomer) > 0) )
-        {   
+        if ((count($updateErrorsOnDelivery) > 0  && count($updateErrorsOnCustomer) > 0) || (count($updateErrorsOnDelivery) > 0  || count($updateErrorsOnCustomer) > 0)) {
+            
             return JsonErrorResponse::sendValidatorErrorsOnManyEntities($updateErrorsOnDelivery, $updateErrorsOnCustomer);
-        
         } else {
         
-            // Dans le cas où il n'y a pas d'erreur, on modifie la date de mise à jour
+            // if no error we update the UpdatedAt and we flush
             $currentDelivery->setUpdatedAt(new DateTime());
             $entityManager->flush();
             return $this->json($currentDelivery, Response::HTTP_ACCEPTED, [], ['groups' => "api_deliveries_details"]);
@@ -303,3 +295,4 @@ class ManagingDeliveryController extends AbstractController
         return $this->json($deliveryToDelete, Response::HTTP_OK, [], ['groups' => "api_delivery_deleted"]);
     }
 }
+
