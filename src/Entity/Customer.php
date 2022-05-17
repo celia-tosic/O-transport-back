@@ -28,7 +28,7 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Groups({"api_driver_deliveries"})
      * @Groups({"api_deliveries_list", "api_deliveries_details"}) 
-     * @Assert\NotBlank(message="Le nom du client ne peut pas être vide")
+     * @Assert\NotBlank(message="Le nom du client ne peut être vide")
      */
     private $name;
 
@@ -36,7 +36,7 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Groups({"api_driver_deliveries"})
      * @Groups({"api_deliveries_list", "api_deliveries_details"})
-     * @Assert\NotBlank(message="L'adresse ne peut pas être vide")
+     * @Assert\NotBlank(message="L'adresse ne peut être vide")
      */
     private $address;
 
