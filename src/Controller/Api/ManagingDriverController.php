@@ -132,7 +132,7 @@ class ManagingDriverController extends AbstractController
             $errors = $validator->validate($user, null, ["modificationIfPasswordExist"]);
 
             if (count($errors) > 0) {
-                return JsonErrorResponse::sendValidatorErrors($errors, 404);
+                return JsonErrorResponse::sendValidatorErrors($errors, 500);
             }
 
             //if it's ok, we hash the password
@@ -145,7 +145,7 @@ class ManagingDriverController extends AbstractController
             $errors = $validator->validate($user, null, ['modification']);
 
             if (count($errors) > 0) {
-                return JsonErrorResponse::sendValidatorErrors($errors, 404);
+                return JsonErrorResponse::sendValidatorErrors($errors, 500);
             }
         }
 
@@ -176,7 +176,7 @@ class ManagingDriverController extends AbstractController
         //If the driver is delivering (status 1, not available), we cannot delete him
         if ($user->getStatus() === 1 )
         {
-            return JsonErrorResponse::sendError("Suppression impossible", 404);
+            return JsonErrorResponse::sendError("Suppression impossible", 405);
         }
 
         //We remove the user of the DB
