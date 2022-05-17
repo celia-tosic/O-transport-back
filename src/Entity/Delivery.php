@@ -81,6 +81,7 @@ class Delivery
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="deliveriesCreatedByAdmin")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups("api_deliveries_details")
      */
     private $admin;
 

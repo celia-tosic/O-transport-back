@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Customer;
+use App\Entity\User;
 use App\Entity\Delivery;
 use App\Repository\CustomerRepository;
 use App\Repository\DeliveryRepository;
@@ -93,9 +94,9 @@ class ManagingDeliveryController extends AbstractController
 
     /**
      * Post route to create a new delivery + customer
-     * @Route("/create", name="create", methods={"POST"})
+     * @Route("", name="create", methods={"POST"})
      */
-    public function create(CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function create(CustomerRepository $customerRepository, UserRepository $userRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // we get the request's content in JSON and we decode it in array
         $data = $request->toArray();
@@ -103,6 +104,8 @@ class ManagingDeliveryController extends AbstractController
         //we isolate the two parts (objects) of the table : delivery and customer
         $deliveryObject = $data["delivery"];
         $customerObject = $data["customer"];
+
+        $admin = $userRepository->find($deliveryObject["adminId"]);
 
         //we transform the 2 objects in JSON to be able to deserialize them with the deserializer of Symfony.
         $deliveryString = $serializer->serialize($deliveryObject, 'json');
@@ -116,6 +119,7 @@ class ManagingDeliveryController extends AbstractController
         // we set some infos by default
         $delivery->setCreatedAt(new DateTime());
         $delivery->setUpdatedAt(null);
+        $delivery->setAdmin($admin);
         $delivery->setStatus(0);
 
         //! Test if the customer exist or not
@@ -179,6 +183,11 @@ class ManagingDeliveryController extends AbstractController
     public function read(int $id, DeliveryRepository $deliveryRepository): Response
     {
         $currentDelivery = $deliveryRepository->find($id);
+
+        if (is_null($currentDelivery))
+        {
+            return JsonErrorResponse::sendError("Cette livraison est inconnue", 404);
+        }
 
         return $this->json($currentDelivery, Response::HTTP_OK, [], ['groups' => "api_deliveries_details"]);
     }
