@@ -24,10 +24,7 @@ class FollowingDeliveryController extends AbstractController
      */
     public function showDeliveries(int $id, DeliveryRepository $deliveryRepository): Response
     {
-
-        $deliveryList = $deliveryRepository->findAllDeliveryToCompleteByDriver($id);
-        // $userToCheck = $testUser->find($id);
-        // dd($user->isEqualTo($userToCheck));
+        $deliveryList = $deliveryRepository->findAllDeliveriesByDriver($id);
 
         return $this->json($deliveryList, Response::HTTP_OK, [], ['groups' => "api_driver_deliveries"]);
     }
@@ -43,13 +40,13 @@ class FollowingDeliveryController extends AbstractController
         $userToSwitchStatus = $userRepository->find($idDriver);
         $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
 
-        //Si le driver_id de la livraison est différent de l'id du chauffeur, alors il ne peut pas commencer la livraison (puisqu'elle ne lui ai pas attribuée)
+        //if the driver_id of the delivery is different from the id of the driver, then he cannot begin the delivery (the delivery is not affectd to him)
         if ($deliveryToSwitchStatus->getDriver()->getId() !== $idDriver) {
 
             return JsonErrorResponse::sendError("Vous ne pouvez commencer cette livraison", 404);
         }
 
-        // Si le chauffeur a déjà un statut 1 (c'est à dire si il est déjà en livraison) alors on renvoie une erreur
+        // If the driver has a status 1 (he is delivering), he cannot begin anothe delivery
         if ($userToSwitchStatus->getStatus() == 1) {
 
             return JsonErrorResponse::sendError("Vous ne pouvez commencer deux livraisons simultanément", 404);
@@ -57,6 +54,7 @@ class FollowingDeliveryController extends AbstractController
 
         $entityManager = $doctrine->getManager();
 
+        //set user status to 1 (not available) and delivery's status to 1 (shipping)
         $userToSwitchStatus->setStatus(1);
         $deliveryToSwitchStatus->setStatus(1);
         $deliveryToSwitchStatus->setUpdatedAt(new DateTime());
@@ -77,7 +75,7 @@ class FollowingDeliveryController extends AbstractController
         $userToSwitchStatus = $userRepository->find($idDriver);
         $deliveryToSwitchStatus = $deliveryRepository->find($idDelivery);
 
-        //Si le driver_id de la livraison est différent de l'id du chauffeur, alors il ne peut pas terminer la livraison (puisqu'elle ne lui ai pas attribuée)
+        //if the driver_id of the delivery is different from the id of the driver, then he cannot begin the delivery (the delivery is not affectd to him)
         if ($deliveryToSwitchStatus->getDriver()->getId() !== $idDriver) {
 
             return JsonErrorResponse::sendError("Vous ne pouvez terminer cette livraison", 404);
@@ -85,6 +83,7 @@ class FollowingDeliveryController extends AbstractController
         $deliveryToSwitchStatus->setUpdatedAt(new DateTime());
         $entityManager = $doctrine->getManager();
 
+        //set user status to 0 (available) and delivery's status to 2 (done)
         $userToSwitchStatus->setStatus(0);
         $deliveryToSwitchStatus->setStatus(2);
         $entityManager->flush();
