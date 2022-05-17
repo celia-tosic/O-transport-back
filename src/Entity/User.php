@@ -31,6 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Assert\NotBlank(message="L'email est obligatoire", groups={"modification", "modificationIfPasswordExist"} )
      * @Assert\Email
+     * @Groups("api_deliveries_details")
      */
     private $email;
 
