@@ -95,9 +95,9 @@ class ManagingDeliveryController extends AbstractController
 
     /**
      * Post route to create a new delivery + customer
-     * @Route("/create", name="create", methods={"POST"})
+     * @Route("", name="create", methods={"POST"})
      */
-    public function create(UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
+    public function create(CustomerRepository $customerRepository, UserRepository $userRepository, Request $request, SerializerInterface $serializer, ManagerRegistry $doctrine, ValidatorInterface $validator): Response
     {
         // we get the request's content in JSON and we decode it in array
         $data = $request->toArray();
