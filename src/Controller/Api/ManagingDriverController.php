@@ -78,7 +78,7 @@ class ManagingDriverController extends AbstractController
         $user->setStatus(0);  
 
         // data validation with validator (@Assert in entities)
-        $errors = $validator->validate($user);
+        $errors = $validator->validate($user, null, ["creation"]);
 
         if (count($errors) > 0)
         {   
@@ -98,7 +98,7 @@ class ManagingDriverController extends AbstractController
         $entityManager->flush();
         
         // send status 201 created if it's ok 
-        return $this->json('', 201);
+        return $this->json($user, 201, [], ['groups' => "api_drivers_details"]);
     }
 
      /**
