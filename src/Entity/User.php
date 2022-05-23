@@ -29,9 +29,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
-     * @Assert\NotBlank(message="L'email est obligatoire", groups={"modification", "modificationIfPasswordExist"} )
-     * @Assert\Email
      * @Groups("api_deliveries_details")
+     * @Assert\NotBlank(message="L'email est obligatoire", groups={"creation", "modification", "modificationIfPasswordExist"} )
+     * @Assert\Email
      */
     private $email;
 
@@ -44,13 +44,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Assert\NotBlank(message="Le mot de passe est obligatoire")
-     * @Assert\Length(
-     *      min = 5,
-     *      max = 50,
-     *      minMessage = "Le mot de passe doit faire au minimum {{ limit }} caractères",
-     *      maxMessage = "Le mot de passe doit faire au maximum {{ limit }} caractères",
-     *      groups={"modificationIfPasswordExist"}
+     * @Assert\NotBlank(message="Le mot de passe est obligatoire", groups={"creation"})
+     * @Assert\Regex("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/",
+     *     match=true,
+     *     message="Le mot de passe doit faire au minimum 8 caractères, doit contenir une minuscule, une majuscule, un chiffre et un caractère spécial",
+     *     groups={"creation", "modificationIfPasswordExist"}, 
      * )
      */
     private $password;
@@ -60,13 +58,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
      * @Groups("api_deliveries_list") 
-     * @Assert\NotBlank(message="Le prénom est obligatoire")
      * @Assert\Length(
      *      min = 2,
      *      max = 50,
      *      minMessage = "Le prénom doit faire au minimum {{ limit }} caractères",
      *      maxMessage = "Le prénom doit faire au maximum {{ limit }} caractères",
-     *      groups={"modification", "modificationIfPasswordExist"}
+     *      groups={"creation", "modification", "modificationIfPasswordExist"}
      * )
      */
     private $firstname;
@@ -76,14 +73,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups({"api_drivers_list", "api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
      * @Groups("api_deliveries_list")
-     * 
      * @Assert\NotBlank(message="Le nom est obligatoire")
      * @Assert\Length(
      *      min = 2,
      *      max = 50,
      *      minMessage = "Le nom doit faire au minimum {{ limit }} caractères",
      *      maxMessage = "Le nom doit faire au maximum {{ limit }} caractères",
-     *      groups={"modification", "modificationIfPasswordExist"}
+     *      groups={"creation", "modification", "modificationIfPasswordExist"}
      * )
      */
     private $lastname;
@@ -92,7 +88,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"api_drivers_details", "api_drivers_delete"})
      * @Groups("api_deliveries_details")
-     * @Assert\NotBlank(message="Le numéro de téléphone est obligatoire", groups={"modification", "modificationIfPasswordExist"})
+     * @Assert\NotBlank(message="Le numéro de téléphone est obligatoire", groups={"creation", "modification", "modificationIfPasswordExist"})
      */
     private $phoneNumber;
 
