@@ -15,7 +15,7 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
 
-        // On utilise Faker pour générer des données aléatoires
+        // We use Faker to generate data
         $faker = Factory::create('fr_FR');
 
 
@@ -48,10 +48,10 @@ class AppFixtures extends Fixture
         $customersObjects = [];
 
 
-        // Boucle de création d'objet "Customer"
+        // Creation of Customer Object
         foreach ($customers as $currentCustomer) {
 
-            // On fabrique les nouveaux objets customers
+            // new objects customer
             $customer = new Customer();
             $customer->setName($currentCustomer['name']);
             $customer->setAddress($currentCustomer['address']);
@@ -67,7 +67,7 @@ class AppFixtures extends Fixture
         $sylvain = [
             'email' => 'sylvain@driver.com',
             'roles' => ['ROLE_DRIVER'],
-            'password' => '$2y$13$5Nszt9g3Ujlyr9SbRlSuJes0aYdx/ceG/CkW7dwpvjqvFSocSjM/C',
+            'password' => '$2y$13$tkj73PN1HlvnRBgJmp6bIuKe9y8pQgEyCcof9PE.IVkHk1EmjJ4Om',
             'firstname' => 'Sylvain',
             'lastname' => 'Danlaitan',
             'status' => 0,
@@ -76,7 +76,7 @@ class AppFixtures extends Fixture
         $yves = [
             'email' => 'yves@driver.com',
             'roles' => ['ROLE_DRIVER'],
-            'password' => '$2y$13$5Nszt9g3Ujlyr9SbRlSuJes0aYdx/ceG/CkW7dwpvjqvFSocSjM/C',
+            'password' => '$2y$13$4tsgE5Xoq9bZwS6qFv2w0eJ07me3djlZ45t3ILA0ejda7HDs4pfPu',
             'firstname' => 'Yves',
             'lastname' => 'Atrovite',
             'status' => 0,
@@ -85,7 +85,7 @@ class AppFixtures extends Fixture
         $francois = [
             'email' => 'francois@driver.com',
             'roles' => ['ROLE_DRIVER'],
-            'password' => '$2y$13$5Nszt9g3Ujlyr9SbRlSuJes0aYdx/ceG/CkW7dwpvjqvFSocSjM/C',
+            'password' => '$2y$13$J2YasHbayh8q1NzdjIRQWOqno02jIP1mnRe4/ALCA5jjn/HhGThrW',
             'firstname' => 'François',
             'lastname' => 'Papraissé',
             'status' => 2,
@@ -94,7 +94,7 @@ class AppFixtures extends Fixture
         $alphonse = [
             'email' => 'alphonse@driver.com',
             'roles' => ['ROLE_DRIVER'],
-            'password' => '$2y$13$5Nszt9g3Ujlyr9SbRlSuJes0aYdx/ceG/CkW7dwpvjqvFSocSjM/C',
+            'password' => '$2y$13$diKKnUb0MZF6Y.mCvn9vq.BpKIIX6KI.CxnhKJeT1KUji1V113/lC',
             'firstname' => 'Alphonse',
             'lastname' => 'Danlmur',
             'status' => 0,
@@ -103,7 +103,7 @@ class AppFixtures extends Fixture
         $romain = [
             'email' => 'romain@admin.com',
             'roles' => ['ROLE_ADMIN'],
-            'password' => '$2y$13$sUv.tOxU2KXZAxiBUFAvReWV/TG87EDsNYChWjp1GPKZOQ7dSjCt.',
+            'password' => '$2y$13$6FCRBUkk0J7NP6fq6apwue6AexFG6xpFOjrXpJtKVCtnEqVZH7y4m',
             'firstname' => 'Romain',
             'lastname' => 'Defer',
             'status' => null,
@@ -113,7 +113,7 @@ class AppFixtures extends Fixture
         $loic = [
             'email' => 'loic@admin.com',
             'roles' => ['ROLE_ADMIN'],
-            'password' => '$2y$13$sUv.tOxU2KXZAxiBUFAvReWV/TG87EDsNYChWjp1GPKZOQ7dSjCt.',
+            'password' => '$2y$13$kFGvXwj2Gk4vMFaCkUqGieDiw0eOvCvsa5k4CNxvXnyOfA6PJ7JjK',
             'firstname' => 'Loic',
             'lastname' => 'Omprampa',
             'status' => null,
@@ -148,49 +148,49 @@ class AppFixtures extends Fixture
 
         // --- DELIVERIES ---
 
-        $nbDeliveries = 20;
+        $nbDeliveries = 10;
 
         $merchandises = [
-            'sable', 'béton', 'gravier', 'bois', 'acier', 'aluminium'
+            'Sable', 'Béton', 'Gravier', 'Bois', 'Acier', 'Aluminium'
         ];
 
 
 
         for ($i = 0; $i < $nbDeliveries; $i++) {
-            // On créé une nouvelle livraison
+            // we create a new delivery
             $delivery = new Delivery();
-            // On randomise le choix de la marchandise
+            
             $merchandisesCount = count($merchandises) - 1;
             $merchandisesIndex = rand(0, $merchandisesCount);
-            // On affecte la marchandise
+            
             $delivery->setMerchandise($merchandises[$merchandisesIndex]);
-            // On génène un volume aléatoire avec Faker
+            // random volume
             $delivery->setVolume($faker->numberBetween(0, 20));
-            // Idem avec le commentaire
+            // random comment
             $delivery->setComment($faker->sentence());
-            // On y affecte un client aléatoire
+            // random client 
             $customerIndex = rand(0, 3);
             $randomCustomer = $customersObjects[$customerIndex];
             $delivery->setCustomer($randomCustomer);
 
-            // On attribue un administrateur
+            // we affect an admin
             $delivery->setAdmin($userObjects[rand(5, 6)]);
             $delivery->setStatus($faker->numberBetween(0, 2));
             if ($delivery->getStatus() == 2) {
-                // Si la livraison est terminé, elle a forcément un chauffeur
+                // if the delivery is completed, a driver must be assigned
                 $driverIndex = rand(1, 4);
                 $delivery->setUpdatedAt(new DateTime());
                 $delivery->setDriver($userObjects[$driverIndex]);
             } else {
                 $driverIndex = rand(0, 4);
                 $delivery->setDriver($userObjects[$driverIndex]);
-                //Si un driver a été affecté,
+                //if a driver is affected
                 if ($delivery->getDriver() != null) {
-                    // Si le status du driver est déjà à 1, le status de la livraison est toujours à 0
+                    // if the driver's status is = 1, status delivery = 0
                     if ($delivery->getDriver()->getstatus() === 1) {
-                        $delivery->setStatus(0); // En cours de livraison
+                        $delivery->setStatus(0); 
                     } else {
-                        // Sinon la livraison est en cours donc on met la livraison et le status du driver a 1
+                       
                         $delivery->setStatus(1);
                         $delivery->getDriver()->setStatus(1);
                     }

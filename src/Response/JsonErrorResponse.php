@@ -23,7 +23,6 @@ class JsonErrorResponse extends Response
     {
         $messages = [];
 
-        
         foreach ($errors as $violation) {
             $messages[$violation->getPropertyPath()] = $violation->getMessage();
         }
