@@ -4,25 +4,10 @@ namespace App\EventListener;
 
 use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 
 class JWTCreatedListener
 {
-    
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @param RequestStack $requestStack
-     */
-    public function __construct(RequestStack $requestStack)
-    {
-        $this->requestStack = $requestStack;
-    }
-
     /**
      * @param JWTCreatedEvent $event
      *
@@ -30,7 +15,7 @@ class JWTCreatedListener
      */
     public function onJWTCreated(JWTCreatedEvent $event)
     {
-        $request = $this->requestStack->getCurrentRequest();
+        //The token information aboit data and user is retrieved when a user logs in.
         $data = $event->getData();
         $user = $event->getUser();
 
@@ -38,12 +23,13 @@ class JWTCreatedListener
             return;
         }
 
+        // we add the id and the firstname of the user
         $data['user'] = array(
             'id' => $user->getId(),
             'firstname' => $user->getFirstName(),
         );
 
-
+        //We hydrate the $event object with the previous data
         $event->setData($data);
 
         $header = $event->getHeader();
