@@ -59,7 +59,7 @@ class Delivery
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("api_deliveries_list")
+     * @Groups({"api_deliveries_list", "api_deliveries_details"})
      */
     private $created_at;
 
