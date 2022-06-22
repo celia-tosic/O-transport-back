@@ -83,7 +83,7 @@ class ManagingDriverController extends AbstractController
         if (count($errors) > 0)
         {   
             // if some erros --> we send errors  
-            return JsonErrorResponse::sendValidatorErrors($errors, 404);
+            return JsonErrorResponse::sendValidatorErrors($errors, 500);
         }
         
         // hash password 

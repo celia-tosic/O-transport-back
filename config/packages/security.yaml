@@ -44,11 +44,10 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # Les ACL de notre API :
+        # ACL
         - { path: ^/api/admin/deliveries/\d+$, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/drivers, roles: ROLE_DRIVER }     
-        #  On sécurise tout nos routes d'api 
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
