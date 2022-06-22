@@ -8,17 +8,16 @@ Les administrateurs de la société peuvent :
 - créer/modifier/supprimer des profils chauffeur.
 
 Les chauffeurs peuvent : 
-- Voir toutes les livraisons qui leur ont été attribuées, 
+- voir toutes les livraisons qui leur ont été attribuées, 
 - commencer une livraison,
 - terminer une livraison. 
-- 
+
 Le back a été réalisé par une autre personne et moi-même avec Symfony. 
 Le front a été réalisé par 2 autres personnes avec React.
-Le front et le back étant séparés, notre but en back a été de créer tous les endpoints d'API permettant ansi le transfert d'informations entre le front et le back du projet.  
+Le front et le back étant séparés, notre but, en back, a été de créer tous les endpoints d'API permettant ansi le transfert d'informations entre le front et le back du projet.  
 
-# Projet-o-transport-back
+# Utiliser le repository
 
-Pour utiliser le repo :
  - le cloner
  - ouvrir un terminal à la racine du projet
  - taper dans la terminal la commande ``composer install`` (= installe tous les composants)
