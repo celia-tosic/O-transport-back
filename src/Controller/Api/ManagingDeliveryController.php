@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Customer;
 use App\Entity\User;
 use App\Entity\Delivery;
+use App\Entity\User;
 use App\Repository\CustomerRepository;
 use App\Repository\DeliveryRepository;
 use App\Repository\UserRepository;
